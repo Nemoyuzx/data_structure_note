@@ -747,7 +747,7 @@ struct LIST {
 
 #### 插入（前插） Array list-INSERT Operation
 
-```c
+```c++
  void Insert (int newItem, List &L, int location) {       
      int i;       
      if (L.last + 1 == maxlength) {//array is full 数组已满          
@@ -785,5 +785,111 @@ struct LIST {
          } 
      }//Time Complexity：O(n) 
 ```
+
+#### 查找 Array list-Find and Retrieve Operations
+
+- 查找数据元素
+  
+  ```c
+  position Find ( elementtype x ,LIST L ) {   
+    position q ;     
+    for ( q = 1; q <= L.last ; q++ )     
+        if ( L.elements[ q ] == x )         
+            return ( q ) ;         
+    return ( L.last + 1 ); 
+  }  //Time Complexity O(n) 
+  ```
+
+- 查找某一位置上的数据
+  
+  ```c
+  elementtype Retrieve ( position p ,LIST L ) {  
+      if ( p > L.last )         
+          error( illegal position) ;     
+      else
+          return ( L.elements[ p ] ) ; 
+  }   //Time Complexity O(1) 
+  ```
+
+### Linked List 链表
+
+- 定义
+  
+  ```c
+  //Type definition： 
+  struct celltype { 
+      elementtype element ; 
+      struct celltype *next ; 
+  } ; /*Node Type*/ 
+  /*List Type */ 
+  typedef struct celltype *LIST; 
+  /*Position Type*/ 
+  typedef struct celltype *position; 
+  ```
+
+- special ATTENTION！！！
+  
+  ```c
+  struct celltype *LIST;//指针
+  struct celltype &LIST;//地址
+  struct celltype LIST;//对象
+  ```
+
+#### 查找和检索 Linked list-Find and Retrieve Operations
+
+```c
+position Find ( elementtype x, LIST L ) {  
+    position p ;     
+    p = L->next ; //pass the pointer to first item 将指针传递到第一个项目
+    while ( p != NULL && p ->element != X  ){
+        p = p→next ;     
+        return p ;
+    } 
+} //Time Complexity：O(n) 
+```
+
+```c
+elementtype Retrieve ( position p , LIST L ) {     
+    return ( p →element ); 
+} //Time Complexity：O(1) 
+```
+
+#### 插入 Linked list-INSERT Operations
+
+![33f02d7c-a5fd-4465-93ab-dfb7e63ada26](file:///C:/Users/20999/Pictures/Typedown/33f02d7c-a5fd-4465-93ab-dfb7e63ada26.png)
+
+```c
+void Insert ( elementtype x, position p, LIST &L ) {
+    position q ;     
+    q = new celltype ;     
+    q →element = x ;     
+    q →next = p →next ;     
+    p →next = q ; 
+} //Time Complexity O(1) 
+```
+
+#### 删除 Linked list-DELETE Operation
+
+![d62e7107-a598-4fa1-bc1a-d34efe7700ff](file:///C:/Users/20999/Pictures/Typedown/d62e7107-a598-4fa1-bc1a-d34efe7700ff.png)
+
+```c
+void Delete (Element X, LIST &L ) {  
+    position P, TmpCell ;    
+    p = FindPrevious( X, L ) ;      
+    if ( !IsLast( P, L ) ) {//not the last element            
+        TmpCell = P->Next;         
+        P->Next = TmpCell->Next;         
+        free ( TmpCell );      
+    }  
+} //Time Complexity：O(1)  
+```
+
+### 顺序表和链表对比 Array List vs. Linked List
+
+|                                 | Array List                                                           | Linked List                                        |
+|:-------------------------------:| -------------------------------------------------------------------- | -------------------------------------------------- |
+| Findkth operation 查找操作          | Random Time efficient O(1)                                           | Sequential Time inefficient  O(n)                  |
+| Insert/Delete Operation 插入/删除操作 | Time inefficient O(n)                    | Time efficient O(1)                                |
+| Space 空间                        | Estimated size, Fixed, waste space, hard to expand 估计大小，固定，浪费空间，难以扩展 | Actual size, Flexible, easy to expand 实际尺寸，灵活，易于扩展 |
 
 
