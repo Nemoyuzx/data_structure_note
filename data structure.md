@@ -889,7 +889,92 @@ void Delete (Element X, LIST &L ) {
 |                                 | Array List                                                           | Linked List                                        |
 |:-------------------------------:| -------------------------------------------------------------------- | -------------------------------------------------- |
 | Findkth operation 查找操作          | Random Time efficient O(1)                                           | Sequential Time inefficient  O(n)                  |
-| Insert/Delete Operation 插入/删除操作 | Time inefficient O(n)                    | Time efficient O(1)                                |
+| Insert/Delete Operation 插入/删除操作 | Time inefficient O(n)                                                | Time efficient O(1)                                |
 | Space 空间                        | Estimated size, Fixed, waste space, hard to expand 估计大小，固定，浪费空间，难以扩展 | Actual size, Flexible, easy to expand 实际尺寸，灵活，易于扩展 |
+
+### Cursor List 静态链表（游标链表）——基于数组管理内存的链表
+
+- 每一位置一数据一下标（输入下标静态表开始检索，检索到下标到-1静态表终止）
+
+- 手动模拟malloc和free函数的操作，操作“available”表确定空地址
+
+#### Representation & Definition
+
+![cb348438-c058-4b34-8965-0ae2a363dd7a](file:///C:/Users/20999/Pictures/Typedown/cb348438-c058-4b34-8965-0ae2a363dd7a.png)
+
+```c
+//Type Definition： 
+typedef struct {     //数组的每一项用结构体实现
+    elementtype element ;     //要存储的数据类型
+    int next ;         //表内下一个元素的下标
+} spacestr; /*Node Type*/  
+spacestr SPACE[ maxsize ] ;/*Memory pool*/  //结构体数组
+typedef int position，cursor; 
+cursor av; /*cursor variable, label a liner list*/  
+SPACE[i].next /*position of next element */ 
+```
+
+#### GetNode and FreeNode 获取和释放节点
+
+```c
+//get an unallocated node 获取节点
+cursor GetNode(){      //malloc
+    cursor p;    
+    if (SPACE[available].next ==-1)        
+        p=-1;    
+    else{   
+        p= SPACE[available].next ;        
+        SPACE[available].next = SPACE[ p ].next ;    
+    }     
+return p; 
+} 
+```
+
+```c
+//free node  释放节点
+void FreeNode(cursor q){  //delete q;      //free
+    SPACE [ q ].next = SPACE[available].next ;     
+    SPACE[available].next = q ; 
+} /* free node to the pool*/ 
+```
+
+### Doubly-linked list 双向链表
+
+#### 初始化
+
+```c
+struct dcelltype { 
+    elementtype element ; 
+    struct dcelltype *next, *previous ; 
+} ; /* list and  position type*/ 
+typedef struct dcelltype *DLIST ; 
+typedef struct dcelltype *position ; 
+```
+
+#### Doubly-linked listINSERT and DELETE 双向链表的插入和删除
+
+```c
+//insert at position p 
+void INSERT( elementtype x, position p,DLIST &L ) {     
+    position q ;     
+    q = new dcelltype ;     
+    q→element = x ;     
+    p→previous→next = q ;     
+    q→previous = p→previous ;     
+    q→next = p ;     
+    p→previous = q ; 
+} 
+```
+
+```c
+//delete node at position p 
+void DELETE(  position p, DLIST  &L ) {       
+    if (p->previous!=NULL)             
+        p→previous→next = p→next;       
+    if (p→next!=NULL)             
+        p→next →previous = p→previous ;       
+    delete p; 
+} 
+```
 
 
