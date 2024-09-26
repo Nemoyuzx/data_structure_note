@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>dt_test</title>
+  <title>data_structure_</title>
   <style>
   @font-face {
   font-family: octicons-link;
@@ -3187,6 +3187,224 @@ sum <span class="token operator">=</span>  <span class="token punctuation">(</sp
 <td>Actual size, Flexible, easy to expand&nbsp;实际尺寸，灵活，易于扩展</td>
 </tr>
 </tbody></table>
+<h3 class="atx" id="cursor-list-静态链表（游标链表）基于数组管理内存的链表">Cursor List 静态链表（游标链表）——基于数组管理内存的链表</h3>
+<ul>
+<li><p>每一位置一数据一下标（输入下标静态表开始检索，检索到下标到-1静态表终止）</p>
+</li>
+<li><p>手动模拟malloc和free函数的操作，操作“available”表确定空地址</p>
+</li>
+</ul>
+<h4 class="atx" id="representation-andamp-definition">Representation &amp; Definition</h4>
+<p><img alt="cb348438-c058-4b34-8965-0ae2a363dd7a" src="file:///C:/Users/20999/Pictures/Typedown/cb348438-c058-4b34-8965-0ae2a363dd7a.png"></p>
+<pre><code class="fenced-code-block language-c"><span class="token comment">//Type Definition： </span>
+<span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token punctuation">{</span>     <span class="token comment">//数组的每一项用结构体实现</span>
+    elementtype element <span class="token punctuation">;</span>     <span class="token comment">//要存储的数据类型</span>
+    <span class="token keyword">int</span> next <span class="token punctuation">;</span>         <span class="token comment">//表内下一个元素的下标</span>
+<span class="token punctuation">}</span> spacestr<span class="token punctuation">;</span> <span class="token comment">/*Node Type*/</span>  
+spacestr SPACE<span class="token punctuation">[</span> maxsize <span class="token punctuation">]</span> <span class="token punctuation">;</span><span class="token comment">/*Memory pool*/</span>  <span class="token comment">//结构体数组</span>
+<span class="token keyword">typedef</span> <span class="token keyword">int</span> position，cursor<span class="token punctuation">;</span> 
+cursor av<span class="token punctuation">;</span> <span class="token comment">/*cursor variable, label a liner list*/</span>  
+SPACE<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>next <span class="token comment">/*position of next element */</span> </code></pre>
+<h4 class="atx" id="getnode-and-freenode-获取和释放节点">GetNode and FreeNode 获取和释放节点</h4>
+<pre><code class="fenced-code-block language-c"><span class="token comment">//get an unallocated node 获取节点</span>
+cursor <span class="token function">GetNode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>      <span class="token comment">//malloc</span>
+    cursor p<span class="token punctuation">;</span>    
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>SPACE<span class="token punctuation">[</span>available<span class="token punctuation">]</span><span class="token punctuation">.</span>next <span class="token operator">==</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>        
+        p<span class="token operator">=</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>    
+    <span class="token keyword">else</span><span class="token punctuation">{</span>   
+        p<span class="token operator">=</span> SPACE<span class="token punctuation">[</span>available<span class="token punctuation">]</span><span class="token punctuation">.</span>next <span class="token punctuation">;</span>        
+        SPACE<span class="token punctuation">[</span>available<span class="token punctuation">]</span><span class="token punctuation">.</span>next <span class="token operator">=</span> SPACE<span class="token punctuation">[</span> p <span class="token punctuation">]</span><span class="token punctuation">.</span>next <span class="token punctuation">;</span>    
+    <span class="token punctuation">}</span>     
+<span class="token keyword">return</span> p<span class="token punctuation">;</span> 
+<span class="token punctuation">}</span> </code></pre>
+<pre><code class="fenced-code-block language-c"><span class="token comment">//free node  释放节点</span>
+<span class="token keyword">void</span> <span class="token function">FreeNode</span><span class="token punctuation">(</span>cursor q<span class="token punctuation">)</span><span class="token punctuation">{</span>  <span class="token comment">//delete q;      //free</span>
+    SPACE <span class="token punctuation">[</span> q <span class="token punctuation">]</span><span class="token punctuation">.</span>next <span class="token operator">=</span> SPACE<span class="token punctuation">[</span>available<span class="token punctuation">]</span><span class="token punctuation">.</span>next <span class="token punctuation">;</span>     
+    SPACE<span class="token punctuation">[</span>available<span class="token punctuation">]</span><span class="token punctuation">.</span>next <span class="token operator">=</span> q <span class="token punctuation">;</span> 
+<span class="token punctuation">}</span> <span class="token comment">/* free node to the pool*/</span> </code></pre>
+<h3 class="atx" id="doubly-linked-list-双向链表">Doubly-linked list&nbsp;双向链表</h3>
+<h4 class="atx" id="初始化">初始化</h4>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">struct</span> <span class="token class-name">dcelltype</span> <span class="token punctuation">{</span> 
+    elementtype element <span class="token punctuation">;</span> 
+    <span class="token keyword">struct</span> <span class="token class-name">dcelltype</span> <span class="token operator">*</span>next<span class="token punctuation">,</span> <span class="token operator">*</span>previous <span class="token punctuation">;</span> 
+<span class="token punctuation">}</span> <span class="token punctuation">;</span> <span class="token comment">/* list and  position type*/</span> 
+<span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token class-name">dcelltype</span> <span class="token operator">*</span>DLIST <span class="token punctuation">;</span> 
+<span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token class-name">dcelltype</span> <span class="token operator">*</span>position <span class="token punctuation">;</span> </code></pre>
+<h4 class="atx" id="doubly-linked-list-insert-and-delete-双向链表的插入和删除">Doubly-linked listINSERT and DELETE&nbsp;双向链表的插入和删除</h4>
+<pre><code class="fenced-code-block language-c"><span class="token comment">//insert at position p </span>
+<span class="token keyword">void</span> <span class="token function">INSERT</span><span class="token punctuation">(</span> elementtype x<span class="token punctuation">,</span> position p<span class="token punctuation">,</span>DLIST <span class="token operator">&amp;</span>L <span class="token punctuation">)</span> <span class="token punctuation">{</span>     
+    position q <span class="token punctuation">;</span>     
+    q <span class="token operator">=</span> new dcelltype <span class="token punctuation">;</span>     
+    q→element <span class="token operator">=</span> x <span class="token punctuation">;</span>     
+    p→previous→next <span class="token operator">=</span> q <span class="token punctuation">;</span>     
+    q→previous <span class="token operator">=</span> p→previous <span class="token punctuation">;</span>     
+    q→next <span class="token operator">=</span> p <span class="token punctuation">;</span>     
+    p→previous <span class="token operator">=</span> q <span class="token punctuation">;</span> 
+<span class="token punctuation">}</span> </code></pre>
+<pre><code class="fenced-code-block language-c"><span class="token comment">//delete node at position p </span>
+<span class="token keyword">void</span> <span class="token function">DELETE</span><span class="token punctuation">(</span>  position p<span class="token punctuation">,</span> DLIST  <span class="token operator">&amp;</span>L <span class="token punctuation">)</span> <span class="token punctuation">{</span>       
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>p<span class="token operator">-&gt;</span>previous<span class="token operator">!=</span><span class="token constant">NULL</span><span class="token punctuation">)</span>             
+        p→previous→next <span class="token operator">=</span> p→next<span class="token punctuation">;</span>       
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>p→next<span class="token operator">!=</span><span class="token constant">NULL</span><span class="token punctuation">)</span>             
+        p→next →previous <span class="token operator">=</span> p→previous <span class="token punctuation">;</span>       
+    delete p<span class="token punctuation">;</span> 
+<span class="token punctuation">}</span> </code></pre>
+<h3 class="atx" id="circularly-linked-list-循环链表">Circularly Linked List 循环链表</h3>
+<p><img alt="fb0f7c7b-263f-41e8-9aa0-ada599262061" src="file:///C:/Users/20999/Pictures/Typedown/fb0f7c7b-263f-41e8-9aa0-ada599262061.png"></p>
+<h3 class="atx" id="circularly-doubly-linked-list-双向循环链表">Circularly Doubly Linked List 双向循环链表</h3>
+<p><img alt="85f2756b-a49d-4800-bd98-dd6e9856554b" src="file:///C:/Users/20999/Pictures/Typedown/85f2756b-a49d-4800-bd98-dd6e9856554b.png"></p>
+<h5 class="atx" id="数据结构第五节ch4-stacks-and-queues-栈和队列">数据结构第五节——CH4 Stacks and Queues 栈和队列</h5>
+<ul>
+<li><p>Stack </p>
+<ul>
+<li><p>Stack Model </p>
+</li>
+<li><p>Implementation of Stacks </p>
+</li>
+<li><p>Applications </p>
+</li>
+</ul>
+</li>
+<li><p>Queue </p>
+<ul>
+<li><p>Queue Model </p>
+</li>
+<li><p>Implementation of Queues</p>
+</li>
+<li><p>Applications    </p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="atx" id="stack-栈">Stack 栈</h2>
+<ul>
+<li><p>Definition：A stack is a Last-In-First-Out (LIFO) list, that is, an ordered list in which insertions and deletions are made at the top only. 堆栈是后进先出（LIFO）列表，即一个有序列表，其中仅在顶部进行插入和删除。</p>
+</li>
+<li><p>输入输出</p>
+<ul>
+<li><p>Input   push() </p>
+</li>
+<li><p>Output   pop() </p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img alt="4f77c72d-4b39-4db6-9fe5-5c3e26af5534" src="file:///C:/Users/20999/Pictures/Typedown/4f77c72d-4b39-4db6-9fe5-5c3e26af5534.png"></p>
+<h3 class="atx" id="operations-操作">Operations 操作</h3>
+<ol>
+<li><p>Int  IsEmpty( Stack S );  </p>
+</li>
+<li><p>Stack CreateStack( );   </p>
+</li>
+<li><p>MakeEmpty( Stack S );   </p>
+</li>
+<li><p>Push( ElementType X, Stack S );    //压栈Push</p>
+</li>
+<li><p>ElementType  Top( Stack S );   </p>
+</li>
+<li><p>Pop( Stack S );  //弹栈Pop</p>
+</li>
+</ol>
+<ul>
+<li><p>栈的常见错误 Note:  </p>
+<ul>
+<li><p>Underflow:A Pop (or Top) on an empty stack is an error in the stack ADT.
+空堆栈上的Pop（或Top）是堆栈ADT中的错误。</p>
+</li>
+<li><p>Overflow: Push on a full stack is an implementation error. 
+推送完整堆栈是一个实现错误。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 class="atx" id="linked-list-implementation-用链表实现">Linked List Implementation 用链表实现</h3>
+<p>链表头</p>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">struct</span> <span class="token class-name">node</span><span class="token punctuation">;</span> 
+<span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token class-name">node</span> <span class="token operator">*</span> PtrToNode<span class="token punctuation">;</span> 
+<span class="token keyword">typedef</span> PtrToNode Stack<span class="token punctuation">;</span>  
+<span class="token keyword">struct</span> <span class="token class-name">node</span> <span class="token punctuation">{</span>     
+    ElementType element<span class="token punctuation">;</span>     
+    PtrToNode next<span class="token punctuation">;</span> 
+<span class="token punctuation">}</span><span class="token punctuation">;</span> </code></pre>
+<p><img alt="73aefd98-8693-41be-b8aa-8468ed86cf09" src="file:///C:/Users/20999/Pictures/Typedown/73aefd98-8693-41be-b8aa-8468ed86cf09.png"></p>
+<p><img alt="a934d245-ab4d-4a78-bbf1-483c24fd5680" src="file:///C:/Users/20999/Pictures/Typedown/a934d245-ab4d-4a78-bbf1-483c24fd5680.png"></p>
+<h4 class="atx" id="createstack-创建栈">CreateStack 创建栈</h4>
+<pre><code class="fenced-code-block language-c">Stack <span class="token function">createStack</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>   
+    Stack s<span class="token punctuation">;</span>      
+    s <span class="token operator">=</span> <span class="token function">malloc</span> <span class="token punctuation">(</span><span class="token keyword">sizeof</span> <span class="token punctuation">(</span><span class="token keyword">struct</span> <span class="token class-name">Node</span> <span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>s<span class="token operator">==</span><span class="token constant">NULL</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>         
+        <span class="token function">printf</span><span class="token punctuation">(</span>“Out of space<span class="token operator">!</span><span class="token operator">!</span>”<span class="token punctuation">)</span><span class="token punctuation">;</span>     
+    <span class="token punctuation">}</span>     
+    s<span class="token operator">-&gt;</span>next <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>     
+    <span class="token keyword">return</span> s<span class="token punctuation">;</span> 
+<span class="token punctuation">}</span> </code></pre>
+<h4 class="atx" id="isempty-判断为空">isEmpty 判断为空</h4>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">int</span> <span class="token function">isEmpty</span><span class="token punctuation">(</span>Stack s<span class="token punctuation">)</span> <span class="token punctuation">{</span>     
+    <span class="token keyword">return</span> s<span class="token operator">-&gt;</span>next <span class="token operator">==</span> <span class="token constant">NULL</span><span class="token punctuation">;</span> 
+<span class="token punctuation">}</span> </code></pre>
+<h4 class="atx" id="makeempty-置空">MakeEmpty 置空</h4>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">void</span> <span class="token function">makeEmpty</span><span class="token punctuation">(</span>Stack s<span class="token punctuation">)</span> <span class="token punctuation">{</span>     
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>s <span class="token operator">==</span> <span class="token constant">NULL</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>         
+        <span class="token function">printf</span><span class="token punctuation">(</span>“Must use CreateStack first”<span class="token punctuation">)</span><span class="token punctuation">;</span>     
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>         
+        <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">isEmpty</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>             
+            <span class="token function">pop</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>         
+        <span class="token punctuation">}</span>     
+    <span class="token punctuation">}</span> 
+<span class="token punctuation">}</span> </code></pre>
+<h4 class="atx" id="pop-弹栈出栈">Pop 弹栈/出栈</h4>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">void</span> <span class="token function">pop</span> <span class="token punctuation">(</span>Stack s<span class="token punctuation">)</span> <span class="token punctuation">{</span>     
+    PtrToNode first<span class="token punctuation">;</span>      
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isEmpty</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>         
+        <span class="token function">printf</span><span class="token punctuation">(</span>“empty stack”<span class="token punctuation">)</span><span class="token punctuation">;</span>     
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>         
+        first <span class="token operator">=</span> s<span class="token operator">-&gt;</span>next<span class="token punctuation">;</span>         
+        s<span class="token operator">-&gt;</span>next <span class="token operator">=</span> s<span class="token operator">-&gt;</span>next<span class="token operator">-&gt;</span>next<span class="token punctuation">;</span>         
+        <span class="token function">free</span><span class="token punctuation">(</span>first<span class="token punctuation">)</span><span class="token punctuation">;</span>     
+    <span class="token punctuation">}</span> 
+<span class="token punctuation">}</span> </code></pre>
+<h4 class="atx" id="push-压栈">Push 压栈</h4>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">void</span> <span class="token function">push</span> <span class="token punctuation">(</span>ElementType x<span class="token punctuation">,</span> Stack s<span class="token punctuation">)</span> <span class="token punctuation">{</span>     
+    PtrToNode <span class="token operator">=</span> temp<span class="token punctuation">;</span>      
+    <span class="token operator">=</span> <span class="token function">malloc</span><span class="token punctuation">(</span><span class="token keyword">sizeof</span><span class="token punctuation">(</span>structNode<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>temp <span class="token operator">==</span> <span class="token constant">NULL</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>         
+    <span class="token function">printf</span><span class="token punctuation">(</span>“out of space<span class="token operator">!</span><span class="token operator">!</span>”<span class="token punctuation">)</span><span class="token punctuation">;</span>     
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>         
+        temp<span class="token operator">-&gt;</span>element <span class="token operator">=</span> x<span class="token punctuation">;</span>         
+        temp <span class="token operator">-&gt;</span>next <span class="token operator">=</span> s<span class="token operator">-&gt;</span>next<span class="token punctuation">;</span>         
+        s<span class="token operator">-&gt;</span>next <span class="token operator">=</span> temp     
+    <span class="token punctuation">}</span> 
+<span class="token punctuation">}</span> </code></pre>
+<h4 class="atx" id="top-头元素">Top 头元素</h4>
+<pre><code class="fenced-code-block language-c">ElementType <span class="token function">top</span><span class="token punctuation">(</span>Stack s<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token function">isEmpty</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> s<span class="token operator">-&gt;</span>next<span class="token operator">-&gt;</span>element<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span>“Empty stack”<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<h3 class="atx" id="array-implementation-数组实现">Array implementation&nbsp;数组实现</h3>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">struct</span>  <span class="token class-name">StackRecord</span> <span class="token punctuation">{</span>     
+    <span class="token keyword">int</span> Capacity <span class="token punctuation">;</span>              <span class="token comment">/* size of stack */</span>     
+    <span class="token keyword">int</span> TopOfStack<span class="token punctuation">;</span>          <span class="token comment">/* the top pointer */</span>     
+    <span class="token comment">/* ++ for push, -- for pop, -1 for empty stack */</span>                         
+    ElementType <span class="token operator">*</span>Array<span class="token punctuation">;</span>    <span class="token comment">/* array for stack elements */</span>  
+<span class="token punctuation">}</span> <span class="token punctuation">;</span>  </code></pre>
+<ul>
+<li><p>Popular implementation (v.s. Linked list implem.), why? 优势</p>
+<ul>
+<li><p>Takes  fast constant time (specific instruction) </p>
+</li>
+<li><p>Actual stacks usually not large (no waste of space) </p>
+</li>
+</ul>
+</li>
+<li><p>Note  注意</p>
+<ul>
+<li>Error checking before push or pop    </li>
+</ul>
+</li>
+</ul>
 </article>
   
 </body>

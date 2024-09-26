@@ -977,4 +977,179 @@ void DELETE(  position p, DLIST  &L ) {
 } 
 ```
 
+### Circularly Linked List 循环链表
 
+![fb0f7c7b-263f-41e8-9aa0-ada599262061](file:///C:/Users/20999/Pictures/Typedown/fb0f7c7b-263f-41e8-9aa0-ada599262061.png)
+
+### Circularly Doubly Linked List 双向循环链表
+
+![85f2756b-a49d-4800-bd98-dd6e9856554b](file:///C:/Users/20999/Pictures/Typedown/85f2756b-a49d-4800-bd98-dd6e9856554b.png)
+
+##### 数据结构第五节——CH4 Stacks and Queues 栈和队列
+
+- Stack 
+  
+  - Stack Model 
+  
+  - Implementation of Stacks 
+  
+  - Applications 
+
+- Queue 
+  
+  - Queue Model 
+  
+  - Implementation of Queues
+  
+  - Applications    
+
+## Stack 栈
+
+- Definition：A stack is a Last-In-First-Out (LIFO) list, that is, an ordered list in which insertions and deletions are made at the top only. 堆栈是后进先出（LIFO）列表，即一个有序列表，其中仅在顶部进行插入和删除。
+
+- 输入输出
+  
+  - Input   push() 
+  
+  - Output   pop() 
+
+![4f77c72d-4b39-4db6-9fe5-5c3e26af5534](file:///C:/Users/20999/Pictures/Typedown/4f77c72d-4b39-4db6-9fe5-5c3e26af5534.png)
+
+### Operations 操作
+
+1. Int  IsEmpty( Stack S );  
+
+2. Stack CreateStack( );   
+
+3. MakeEmpty( Stack S );   
+
+4. Push( ElementType X, Stack S );    //压栈Push
+
+5. ElementType  Top( Stack S );   
+
+6. Pop( Stack S );  //弹栈Pop
+- 栈的常见错误 Note:  
+  
+  - Underflow:A Pop (or Top) on an empty stack is an error in the stack ADT.
+    空堆栈上的Pop（或Top）是堆栈ADT中的错误。
+  
+  - Overflow: Push on a full stack is an implementation error. 
+    推送完整堆栈是一个实现错误。
+
+### Linked List Implementation 用链表实现
+
+链表头
+
+```c
+struct node; 
+typedef struct node * PtrToNode; 
+typedef PtrToNode Stack;  
+struct node {     
+    ElementType element;     
+    PtrToNode next; 
+}; 
+```
+
+![73aefd98-8693-41be-b8aa-8468ed86cf09](file:///C:/Users/20999/Pictures/Typedown/73aefd98-8693-41be-b8aa-8468ed86cf09.png)
+
+![a934d245-ab4d-4a78-bbf1-483c24fd5680](file:///C:/Users/20999/Pictures/Typedown/a934d245-ab4d-4a78-bbf1-483c24fd5680.png)
+
+#### CreateStack 创建栈
+
+```c
+Stack createStack() {   
+    Stack s;      
+    s = malloc (sizeof (struct Node ));     
+    if (s==NULL) {         
+        printf(“Out of space!!”);     
+    }     
+    s->next = NULL;     
+    return s; 
+} 
+```
+
+#### isEmpty 判断为空
+
+```c
+int isEmpty(Stack s) {     
+    return s->next == NULL; 
+} 
+```
+
+#### MakeEmpty 置空
+
+```c
+void makeEmpty(Stack s) {     
+    if (s == NULL) {         
+        printf(“Must use CreateStack first”);     
+    } else {         
+        while (!isEmpty(s)) {             
+            pop(s);         
+        }     
+    } 
+} 
+```
+
+#### Pop 弹栈/出栈
+
+```c
+void pop (Stack s) {     
+    PtrToNode first;      
+    if (isEmpty(s)) {         
+        printf(“empty stack”);     
+    } else {         
+        first = s->next;         
+        s->next = s->next->next;         
+        free(first);     
+    } 
+} 
+```
+
+#### Push 压栈
+
+```c
+void push (ElementType x, Stack s) {     
+    PtrToNode = temp;      
+    = malloc(sizeof(structNode));     
+    if (temp == NULL) {         
+    printf(“out of space!!”);     
+    } else {         
+        temp->element = x;         
+        temp ->next = s->next;         
+        s->next = temp     
+    } 
+} 
+```
+
+#### Top 头元素
+
+```c
+ElementType top(Stack s) {
+    if (!isEmpty(s)) {
+        return s->next->element;
+    }
+    printf(“Empty stack”);
+    return 0;
+}
+```
+
+### Array implementation 数组实现
+
+```c
+struct  StackRecord { 	
+    int Capacity ;              /* size of stack */ 	
+    int TopOfStack;          /* the top pointer */ 	
+    /* ++ for push, -- for pop, -1 for empty stack */ 	                    
+    ElementType *Array;    /* array for stack elements */  
+} ;  
+```
+
+- Popular implementation (v.s. Linked list implem.), why? 优势
+  
+  - Takes  fast constant time (specific instruction) 
+  
+  - Actual stacks usually not large (no waste of space) 
+
+- Note  注意
+  
+  - Error checking before push or pop    
