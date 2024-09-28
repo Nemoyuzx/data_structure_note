@@ -985,7 +985,7 @@ void DELETE(  position p, DLIST  &L ) {
 
 ![85f2756b-a49d-4800-bd98-dd6e9856554b](file:///C:/Users/20999/Pictures/Typedown/85f2756b-a49d-4800-bd98-dd6e9856554b.png)
 
-##### 数据结构第五节——CH4 Stacks and Queues 栈和队列
+# 数据结构第五节——CH4 Stacks and Queues 栈和队列
 
 - Stack 
   
@@ -1136,10 +1136,10 @@ ElementType top(Stack s) {
 ### Array implementation 数组实现
 
 ```c
-struct  StackRecord { 	
-    int Capacity ;              /* size of stack */ 	
-    int TopOfStack;          /* the top pointer */ 	
-    /* ++ for push, -- for pop, -1 for empty stack */ 	                    
+struct  StackRecord {     
+    int Capacity ;              /* size of stack */     
+    int TopOfStack;          /* the top pointer */     
+    /* ++ for push, -- for pop, -1 for empty stack */                         
     ElementType *Array;    /* array for stack elements */  
 } ;  
 ```
@@ -1152,4 +1152,115 @@ struct  StackRecord {
 
 - Note  注意
   
-  - Error checking before push or pop    
+  - Error checking before push or pop  
+
+### EXP 运用实例
+
+#### Balancing Symbols 平衡符号检查
+
+- Balancing symbols: Check if parenthesis ( ), brackets [ ], are balanced.
+  平衡符号：检查括号（）、括号[]是否平衡。
+
+##### 流程
+
+- Keep a stack 
+
+- Read the charecters one by one  逐一阅读字符
+
+- If the charecter is ‘(‘  or ‘[‘ push into stack 如果字符是“（”或“[”，则推入堆栈
+
+- If the charecter is ‘)’ or ‘]’ pop the stack  如果字符是“）”或“]”，则弹出堆栈
+  
+  - if the stack is empty ERROR     
+  
+  - if the symbol popped does not match with character ERROR 
+
+- Continue until the end of file 继续，直到文件结束
+
+- At the end of file     
+  
+  - if  the stack is not empty ERROR        
+  
+  - else SUCCESS 
+
+##### code 代码
+
+```c
+Algorithm  {
+    Make an empty stack S;
+    while (read in a character c) {
+        if (c is an opening symbol)
+            Push(c, S);
+        else if (c is a closing symbol) {
+            if (S is empty)  { ERROR; exit; }
+            else  {  /* stack is okay */
+                if  (Top(S) doesn’t match c)  { ERROR, exit; }
+                else  Pop(S);
+            }  /* end else-stack is okay */
+        }  /* end else-if-closing symbol */
+    } /* end while-loop */ 
+    if (S is not empty)  ERROR;
+}
+```
+
+#### Postfix Evaluation 后缀表达式的评估（机器计算）
+
+1. 数学上常用的表达式叫做中缀表达式，需要用括号来表示运算顺序，但是计算机做中缀表达式的求值比较难，一是需要知道运算符优先级，二是需要处理括号  
+
+2. 为了方便计算机进行求值，我们引入了前缀表达式和后缀表达式。
+
+3. 后缀表达式更加简单，他有一个特性，就是我们从左到右扫描表达式，如果遇到操作符，那么他的两个操作数一定已经ready了，可以进行这个操作符所对应的运算。由于这样的性质，我们可以使用堆栈来解决后缀表达式求值问题 
+- 〖Example〗
+  
+  - An infix expression 中缀表达式:     a + b * c - d / e                       
+  - A prefix expression 前缀表达式:     - + a * b c / d e                      
+  - A postfix expression 后缀表达式（逆波兰表示）:   a b c * + d e / - 
+
+![c296e9a6-398a-4a58-a038-5ecfa2da1dff](file:///C:/Users/20999/Pictures/Typedown/c296e9a6-398a-4a58-a038-5ecfa2da1dff.png)
+
+#### Infix to Postfix Conversion 从前缀到后缀的转换
+
+- 栈里只放运算符，在下一个运算符的优先级判断后，优先级比读取的低或等时，出栈（一直出栈）并输出（括号不输出），优先级比读取的高时，压栈
+
+- 左括号栈外优先级最高，栈内优先级最低
+
+##### 〖Example1〗  a + b * c - d  =  ?
+
+1. Read one by one.
+
+2. If it is not symbol,  output as part of the postfix expression.
+
+3. else compare with the symbol at top of the stack.
+   
+   - If its precedence is lower than or equal to the top symbol or it is“)”,pop the symbol from top, output it, until a entry of lower priority,and push the current symbol.
+     如果其优先级低于或等于顶部符号或为“）”，则从顶部弹出符号，输出它，直到优先级较低的条目，然后推送当前符号。
+   
+   - else push the current symbol into stack.
+     否则，将当前符号推入堆栈。
+
+##### Tips 括号的处理:
+
+- Never pop a ( from the stack except when processing a ) .
+  永远不要弹出a（从堆栈中弹出，除非处理a）。
+
+- Observe that when (  is not in the stack, its precedence is the highest; but when it is in the stack, its precedence is the lowest.  Define in-stack precedence and incoming precedence for symbols, and each time use the corresponding precedence for comparison.
+  请注意，当（不在堆栈中时，其优先级最高；但当它在堆栈中，其优先级最低。定义符号的堆栈内优先级和传入优先级，每次使用相应的优先级进行比较。
+  (in other words, “(” must be pushed, and when meet “)”, symbols in stack above “(” are poped) 
+  （换言之，“（必须被推，当遇到时）”，上面堆栈中的符号“（”被弹出）
+
+##### Note 嵌套次方的处理：
+
+- a – b – c will be converted to a b – c –.  However, 2^2^3 must be converted to 2 2 3 ^ ^, not 2 2 ^ 3 ^ since exponentiation associates right to left （and thus suppose the right ^ has higher priority than the left ^）.
+  a–b–c将转换为a b–c。但是，2^2^3必须转换为2 2 3^^，而不是2 2^3^，因为求幂运算是从右向左关联的（因此假设右^的优先级高于左^）。
+
+#### Functions calls 系统调用
+
+![4e2d183e-a291-4c2f-8c17-b4bb5eb20101](file:///C:/Users/20999/Pictures/Typedown/4e2d183e-a291-4c2f-8c17-b4bb5eb20101.png)
+
+- When a function is called 
+  
+  - Local variables and status should be saved  
+
+- When the function returns 
+  
+  - Saved values needs to be restored 
