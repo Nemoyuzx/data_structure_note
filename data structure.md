@@ -1264,3 +1264,273 @@ Algorithm  {
 - When the function returns 
   
   - Saved values needs to be restored 
+    
+    
+
+## Queue 队列
+
+### The Queue ADT 队列的抽象数据类型
+
+- A queue is a First-In-First-Out (FIFO) list, that is, an ordered list in which insertions take place at one end and deletions take place at the opposite end.
+  队列是先进先出（FIFO）列表，即一个有序列表，其中插入发生在一端，删除发生在另一端。
+- Object 对象：A finite ordered list with zero or more elements.
+  对象：一个包含零个或多个元素的有限有序列表。
+
+![101ed61b-8c25-4d20-96cf-e2e1f5eb344d](file:///C:/Users/20999/Pictures/Typedown/101ed61b-8c25-4d20-96cf-e2e1f5eb344d.png)
+
+### Operations 操作
+
+- int  IsEmpty( Queue Q ); 
+- MakeEmpty( Queue Q );  
+- Enqueue( ElementType X, Queue Q );  
+- ElementType  Front( Queue Q );  
+- Dequeue( Queue Q );   
+
+### Linked list implementation of Queues 队列的链表实现
+
+```c
+typedef  struct  node  {      
+    elemtye  data ;      
+    struct  node  *  next ;
+ } * pointer; 
+typedef  struct  {      
+    pointer   front, rear  ; 
+} linkedqueue ; 
+```
+
+### Array implementation of Queues 队列的数组实现
+
+```c
+#define   MAXLEN  user_supply 
+typedef   struct  {
+    elemtype  elem [ MAXLEN ] ;      
+    int  front ,  rear; } 
+queue; 
+```
+
+### circularqueue  循环队列
+
+![ecfb03b2-c1b9-4049-8293-3ac0d712fd3a](file:///C:/Users/20999/Pictures/Typedown/ecfb03b2-c1b9-4049-8293-3ac0d712fd3a.png)
+
+### How to judge whether the queue is full  如何判断队列是否已满
+
+- Use a flag
+  
+  - Record
+  
+  - flag=0  meansempty，flag=1means full
+
+- Leavean empty space to distinguish 留出空间来区分
+  
+  - front ==rear => queue empty
+  
+  - If (rear+1)%QueueSize == front => queuefull
+
+## Circular queue vs. Linked queue
+
+- Circular queue hasfixed space consumption (may waste space), while linkedqueue is more flexible.
+  循环队列具有固定的空间消耗(可能会浪费空间) ，而链接队列具有更大的灵活性。
+
+- Circular queue needn’tallocate or free a node, and thus save time.
+  循环队列不需要分配或释放节点，从而节省时间。
+
+- To conclude, if the maximum length of queue can be estimated, it is better to use circular queue.
+  总之，如果可以估计队列的最大长度，最好使用循环队列。
+
+# 数据结构第六节——CH5 String 字符串
+
+- Definition 定义
+
+- The representation and implementation of String  字符串的表示和实现
+
+- Pattern Matching algorithm 模式匹配算法
+
+## Definition
+
+- A string (or word) is any finite sequenceof characters from an alphabet.
+  字符串(或单词)是字母表中任意有限的字符序列。
+
+        S=  "a1a2a3……an”(n≥0)
+
+        A= “BEIJING”， B=“JING”
+
+### Terminology 专业术语
+
+- The length of a string isthe number of characters in the string 
+  字符串的长度是字符串中的字符数
+
+- Null String:Nothing in the string, the length is zero.  
+  空字符串: 字符串中没有内容，长度为零。
+
+- Substring:sub-sequence of one string.
+  子串: 一个字符串的子序列。
+
+- Compare which string is larger 比较操作
+  
+  ```c
+  S=“a1,a2,...,an”, t = “b1,b2,…,bm” S< t, when
+    n< m, and ai = bi (i=1,2,……,n)
+  [e.g.] s =“hap”, t=“happy”, ands< t.
+    Thereexists k <= min(m,n),ai=bi(i=1.2,……，k-1), ak<bk
+  [e.g.] compare “silly” with“stupid”         
+         “s”==“s”, “i”< “t” => “silly” < “stupid”
+  ```
+
+### Operations
+
+```c
+StrAssign (&T, chars)  //string assignment 串赋值
+assign chars to T
+将字符分配给 T
+
+StrCopy (&T, S)   //String Copy 字符串复制
+Copy S string to T
+将 S 字符串复制到 T
+
+Concat(&T,S1,S2) //String Concatenation 字符串拼接
+Concatenate S1 and S2 and put the new string into T
+连接 S1和 S2并将新字符串放入 T 中
+
+SubString (&Sub, S, pos, len)  //Get sub string 获取子串
+Return sub string of string, which from pos to pos+len position of S 
+返回字符串的子字符串，该字符串从 P 到 S 的 pos + len 位置
+
+Replace (&S, T, V)  //String replacement 字符串位置替代
+Replace all the non-overlapped sub-string T of S with V 
+将 S 的所有非重叠子串 T 替换为 V
+
+StrInsert (&S, pos, T)  //string insert 字符串插入
+Insert String T before the pos character of string S
+在字符串 S 的 pos 字符之前插入字符串 T 
+
+Index (S, T, pos) //String match 字符串匹配
+If there is a sub-string in S, return the position of sub-string occurs first time after pos, otherwise return 0. 
+如果在 S 中有一个子字符串，返回子字符串的位置在 pos 之后第一次出现，否则返回0。
+```
+
+### Basic String Operations  基本字符串运算
+
+- basic
+  
+  - The StrAssign
+  
+  - Strcopy
+  
+  - StrCompare
+  
+  - StrLength
+  
+  - Concat 
+  
+  - SubString
+
+- These operations cannot be implementedwith other string operations, but the other string operations can beimplemented with these 6 basic string operations.
+  这些操作不能用其他字符串运算来实现，但其他字符串运算可以用这6个基本字符串运算来实现。
+
+### String Operations Library 字符串操作库
+
+- string handling functions in C library
+  
+  ```c
+  gets(str)  //Input a string;
+  puts(str) //Output a string；
+  strcat(str1, str2)  // string Concatenation；
+  strcpy(str1, str2, k)  //String copy；
+  strcmp(str1, str2) //String comparision；
+  strlen(str)  //Get the length of striag-0-1i9q1q79bag-1-1i9q1q79bng 
+  ```
+
+## There presentation and implementation of String  字符串的表示和实现
+
+- Three implementations
+  
+  - Fixedlength array  // static  固定长度数组，静态数据
+  
+  - Linked List  //dynamic 链表，动态数据
+  
+  - Heaparray  //dynamic 堆空间，动态数据
+
+### fixed length array 固定长度数组
+
+```c
+#define MAXLEN user_supply
+typedef struct   {
+     char str[MAXLEN];
+     int curlen;
+} string;
+```
+
+```c
+#define  MAXLEN   255
+typedef char lstring[ MAXLEN+1];
+// string[0] denotes the length of the string
+```
+
+### linked list 链表
+
+（一个node存一个char效率太低，可以用块）
+
+![f6d15281-958c-4967-8d66-b6c1a0ca5da7](file:///C:/Users/20999/Pictures/Typedown/f6d15281-958c-4967-8d66-b6c1a0ca5da7.png)
+
+```c
+#define  NODELEN   user_supply  //maxlength
+typedef struct node {
+     char ch;
+      //  char ch [NODELEN]; //chunk size
+       struct  node  *next;
+} node,*pointer;                
+```
+
+```c
+typedef struct    {
+      pointer head, tail;
+      int   length;
+} linkedstring;
+```
+
+## Pattern Matching algorithm 模式配对算法
+
+- PatternMatching ：Getthe position of pattern string in main string
+  模式匹配: 获取模式字符串在主字符串中的位置
+
+- Method：Compare the pattern string T to main string S fromposition pos, if the character does notmatch, right moving pattern string.
+  方法: 将模式字符串 T 与主字符串 S 从位置点进行比较，如果字符不匹配，则右移模式字符串。
+
+### Process of basic matching  基本匹配过程
+
+```c
+int find_sub_string(string s, string t)
+{
+    int i = 0, j = 0;    //初始化两个指针
+    while(i<s.size() && j<t.size()){
+        if(s[i] == t[j]){
+            i++;    //如果两个指针指向的字符相等
+            j++;    //则将两个指针向后移动
+        }
+        else{
+            i = i - j + 1;    //匹配失败，i退回到上次匹配首位的下一位
+            j = 0;            //j退回到子串首位
+        }
+    }
+    if(j>=t.size()){    //j走到子串末尾说明匹配成功
+        return i - j;    //匹配成功返回主串中子串出现的第一位
+    }
+    else 
+        return -1;        //匹配失败，返回-1
+}
+
+```
+
+- Basic match algorithm is inefficient
+  基本匹配算法效率低下
+  The time complexity of simple match algorithm in worst situation is O(n*m) （nis the length of S and m is the length of m pattern T）.  (n-m+1)*m  comparison 。(the example below)
+  简单匹配算法在最坏情况下的时间复杂度为 O (n * m)(等于 S 的长度，m 等于 m 模式 T 的长度)。(n-m + 1) * m 比较。
+
+- 最好的情况是一开始就匹配成功了，如主串为"googlegood"，子串为"google"，此时的时间复杂度为O(m)(m为子串长度)
+  那最坏的情况是什么呢？最坏的情况就是每次不成功的匹配都发生在子串末尾，就如《大话数据结构》书中的例子，主串为S=“00000000000000000000000000000000000000000000000001”，子串为T=“0000000001”，推导一下可得此时的时间复杂度度为O((n-m+1)*m)(n为主串长度)。
+
+### Knuth-Morris-Pratt  (KMP Algorithms) Knuth-Morris-Pratt (KMP 算法)
+
+
+
+

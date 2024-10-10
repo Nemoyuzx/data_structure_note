@@ -3523,10 +3523,216 @@ a–b–c将转换为a b–c。但是，2^2^3必须转换为2 2 3^^，而不是2
 </li>
 <li><p>When the function returns </p>
 <ul>
-<li>Saved values needs to be restored </li>
+<li>Saved values needs to be restored <p></p>
+</li>
 </ul>
 </li>
 </ul>
+<h2 class="atx" id="queue-队列">Queue 队列</h2>
+<h3 class="atx" id="the-queue-adt-队列的抽象数据类型">The Queue ADT 队列的抽象数据类型</h3>
+<ul>
+<li>A queue is a First-In-First-Out (FIFO) list, that is, an ordered list in which insertions take place at one end and deletions take place at the opposite end.
+队列是先进先出（FIFO）列表，即一个有序列表，其中插入发生在一端，删除发生在另一端。</li>
+<li>Object 对象：A finite ordered list with zero or more elements.
+对象：一个包含零个或多个元素的有限有序列表。</li>
+</ul>
+<p><img alt="101ed61b-8c25-4d20-96cf-e2e1f5eb344d" src="file:///C:/Users/20999/Pictures/Typedown/101ed61b-8c25-4d20-96cf-e2e1f5eb344d.png"></p>
+<h3 class="atx" id="operations-操作-1">Operations 操作</h3>
+<ul>
+<li>int  IsEmpty( Queue Q ); </li>
+<li>MakeEmpty( Queue Q );  </li>
+<li>Enqueue( ElementType X, Queue Q );  </li>
+<li>ElementType  Front( Queue Q );  </li>
+<li>Dequeue( Queue Q );   </li>
+</ul>
+<h3 class="atx" id="linked-list-implementation-of-queues-队列的链表实现">Linked list implementation of Queues 队列的链表实现</h3>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">typedef</span>  <span class="token keyword">struct</span>  <span class="token class-name">node</span>  <span class="token punctuation">{</span>      
+    elemtye  data <span class="token punctuation">;</span>      
+    <span class="token keyword">struct</span>  <span class="token class-name">node</span>  <span class="token operator">*</span>  next <span class="token punctuation">;</span>
+ <span class="token punctuation">}</span> <span class="token operator">*</span> pointer<span class="token punctuation">;</span> 
+<span class="token keyword">typedef</span>  <span class="token keyword">struct</span>  <span class="token punctuation">{</span>      
+    pointer   front<span class="token punctuation">,</span> rear  <span class="token punctuation">;</span> 
+<span class="token punctuation">}</span> linkedqueue <span class="token punctuation">;</span> </code></pre>
+<h3 class="atx" id="array-implementation-of-queues-队列的数组实现">Array implementation of Queues 队列的数组实现</h3>
+<pre><code class="fenced-code-block language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span>   <span class="token macro-name">MAXLEN</span>  <span class="token expression">user_supply </span></span>
+<span class="token keyword">typedef</span>   <span class="token keyword">struct</span>  <span class="token punctuation">{</span>
+    elemtype  elem <span class="token punctuation">[</span> MAXLEN <span class="token punctuation">]</span> <span class="token punctuation">;</span>      
+    <span class="token keyword">int</span>  front <span class="token punctuation">,</span>  rear<span class="token punctuation">;</span> <span class="token punctuation">}</span> 
+queue<span class="token punctuation">;</span> </code></pre>
+<h3 class="atx" id="circularqueue--循环队列">circularqueue&nbsp; 循环队列</h3>
+<p><img alt="ecfb03b2-c1b9-4049-8293-3ac0d712fd3a" src="file:///C:/Users/20999/Pictures/Typedown/ecfb03b2-c1b9-4049-8293-3ac0d712fd3a.png"></p>
+<h3 class="atx" id="how-to-judge-whether-the-queue-is-full--如何判断队列是否已满">How to judge whether the queue is full&nbsp; 如何判断队列是否已满</h3>
+<ul>
+<li><p>Use a flag</p>
+<ul>
+<li><p>Record</p>
+</li>
+<li><p>flag=0 &nbsp;meansempty，flag=1means full</p>
+</li>
+</ul>
+</li>
+<li><p>Leavean empty space to distinguish 留出空间来区分</p>
+<ul>
+<li><p>front ==rear =&gt; queue empty</p>
+</li>
+<li><p>If (rear+1)%QueueSize == front =&gt; queuefull</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="atx" id="circular-queue-vs-linked-queue">Circular queue vs. Linked queue</h2>
+<ul>
+<li><p>Circular queue hasfixed space consumption (may waste space), while linkedqueue is more flexible.
+循环队列具有固定的空间消耗(可能会浪费空间) ，而链接队列具有更大的灵活性。</p>
+</li>
+<li><p>Circular queue needn’tallocate or free a node, and thus save time.
+循环队列不需要分配或释放节点，从而节省时间。</p>
+</li>
+<li><p>To conclude, if the maximum length of queue can be estimated, it is better to use circular queue.
+总之，如果可以估计队列的最大长度，最好使用循环队列。</p>
+</li>
+</ul>
+<h1 class="atx" id="数据结构第六节ch5-string-字符串">数据结构第六节——CH5 String 字符串</h1>
+<ul>
+<li><p>Definition 定义</p>
+</li>
+<li><p>The representation and implementation of String  字符串的表示和实现</p>
+</li>
+<li><p>Pattern Matching algorithm 模式匹配算法</p>
+</li>
+</ul>
+<h2 class="atx" id="definition">Definition</h2>
+<ul>
+<li>A string (or word) is any finite sequenceof characters from an alphabet.
+字符串(或单词)是字母表中任意有限的字符序列。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S=&nbsp; "a1a2a3……an”(n≥0)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   A= “BEIJING”， B=“JING”</p>
+<h3 class="atx" id="terminology-专业术语">Terminology 专业术语</h3>
+<ul>
+<li><p>The length of a string isthe number of characters in the string 
+字符串的长度是字符串中的字符数</p>
+</li>
+<li><p>Null String:Nothing in the string, the length is zero.&nbsp;&nbsp;
+空字符串: 字符串中没有内容，长度为零。</p>
+</li>
+<li><p>Substring:sub-sequence of one string.
+子串: 一个字符串的子序列。</p>
+</li>
+<li><p>Compare which string is larger 比较操作</p>
+<pre><code class="fenced-code-block language-c">S<span class="token operator">=</span>“a1<span class="token punctuation">,</span>a2<span class="token punctuation">,</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span>an”<span class="token punctuation">,</span> t <span class="token operator">=</span> “b1<span class="token punctuation">,</span>b2<span class="token punctuation">,</span>…<span class="token punctuation">,</span>bm” S<span class="token operator">&lt;</span> t<span class="token punctuation">,</span> when
+  n<span class="token operator">&lt;</span> m<span class="token punctuation">,</span> and ai <span class="token operator">=</span> <span class="token function">bi</span> <span class="token punctuation">(</span>i<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span>……<span class="token punctuation">,</span>n<span class="token punctuation">)</span>
+<span class="token punctuation">[</span>e<span class="token punctuation">.</span>g<span class="token punctuation">.</span><span class="token punctuation">]</span> s <span class="token operator">=</span>“hap”<span class="token punctuation">,</span> t<span class="token operator">=</span>“happy”<span class="token punctuation">,</span> ands<span class="token operator">&lt;</span> t<span class="token punctuation">.</span>
+  Thereexists k <span class="token operator">&lt;=</span> <span class="token function">min</span><span class="token punctuation">(</span>m<span class="token punctuation">,</span>n<span class="token punctuation">)</span><span class="token punctuation">,</span>ai<span class="token operator">=</span><span class="token function">bi</span><span class="token punctuation">(</span>i<span class="token operator">=</span><span class="token number">1.2</span><span class="token punctuation">,</span>……，k<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> ak<span class="token operator">&lt;</span>bk
+<span class="token punctuation">[</span>e<span class="token punctuation">.</span>g<span class="token punctuation">.</span><span class="token punctuation">]</span> compare “silly” with“stupid”         
+       “s”<span class="token operator">==</span>“s”<span class="token punctuation">,</span> “i”<span class="token operator">&lt;</span> “t” <span class="token operator">=</span><span class="token operator">&gt;</span> “silly” <span class="token operator">&lt;</span> “stupid”</code></pre>
+</li>
+</ul>
+<h3 class="atx" id="operations">Operations</h3>
+<pre><code class="fenced-code-block language-c"><span class="token function">StrAssign</span> <span class="token punctuation">(</span><span class="token operator">&amp;</span>T<span class="token punctuation">,</span> chars<span class="token punctuation">)</span>  <span class="token comment">//string assignment 串赋值</span>
+assign chars to T
+将字符分配给 T
+
+<span class="token function">StrCopy</span> <span class="token punctuation">(</span><span class="token operator">&amp;</span>T<span class="token punctuation">,</span> S<span class="token punctuation">)</span>   <span class="token comment">//String Copy 字符串复制</span>
+Copy S string to T
+将 S 字符串复制到 T
+
+<span class="token function">Concat</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>T<span class="token punctuation">,</span>S1<span class="token punctuation">,</span>S2<span class="token punctuation">)</span> <span class="token comment">//String Concatenation 字符串拼接</span>
+Concatenate S1 and S2 and put the new string into T
+连接 S1和 S2并将新字符串放入 T 中
+
+<span class="token function">SubString</span> <span class="token punctuation">(</span><span class="token operator">&amp;</span>Sub<span class="token punctuation">,</span> S<span class="token punctuation">,</span> pos<span class="token punctuation">,</span> len<span class="token punctuation">)</span>  <span class="token comment">//Get sub string 获取子串</span>
+Return sub string of string<span class="token punctuation">,</span> which from pos to pos<span class="token operator">+</span>len position of S 
+返回字符串的子字符串，该字符串从 P 到 S 的 pos <span class="token operator">+</span> len 位置
+
+<span class="token function">Replace</span> <span class="token punctuation">(</span><span class="token operator">&amp;</span>S<span class="token punctuation">,</span> T<span class="token punctuation">,</span> V<span class="token punctuation">)</span>  <span class="token comment">//String replacement 字符串位置替代</span>
+Replace all the non<span class="token operator">-</span>overlapped sub<span class="token operator">-</span>string T of S with V 
+将 S 的所有非重叠子串 T 替换为 V
+
+<span class="token function">StrInsert</span> <span class="token punctuation">(</span><span class="token operator">&amp;</span>S<span class="token punctuation">,</span> pos<span class="token punctuation">,</span> T<span class="token punctuation">)</span>  <span class="token comment">//string insert 字符串插入</span>
+Insert String T before the pos character of string S
+在字符串 S 的 pos 字符之前插入字符串 T 
+
+<span class="token function">Index</span> <span class="token punctuation">(</span>S<span class="token punctuation">,</span> T<span class="token punctuation">,</span> pos<span class="token punctuation">)</span> <span class="token comment">//String match 字符串匹配</span>
+If there is a sub<span class="token operator">-</span>string in S<span class="token punctuation">,</span> <span class="token keyword">return</span> the position of sub<span class="token operator">-</span>string occurs first time after pos<span class="token punctuation">,</span> otherwise <span class="token keyword">return</span> <span class="token number">0.</span> 
+如果在 S 中有一个子字符串，返回子字符串的位置在 pos 之后第一次出现，否则返回<span class="token number">0</span>。</code></pre>
+<h3 class="atx" id="basic-string-operations--基本字符串运算">Basic String Operations  基本字符串运算</h3>
+<ul>
+<li><p>basic</p>
+<ul>
+<li><p>The StrAssign</p>
+</li>
+<li><p>Strcopy</p>
+</li>
+<li><p>StrCompare</p>
+</li>
+<li><p>StrLength</p>
+</li>
+<li><p>Concat </p>
+</li>
+<li><p>SubString</p>
+</li>
+</ul>
+</li>
+<li><p>These operations cannot be implementedwith other string operations, but the other string operations can beimplemented with these 6 basic string operations.
+这些操作不能用其他字符串运算来实现，但其他字符串运算可以用这6个基本字符串运算来实现。</p>
+</li>
+</ul>
+<h3 class="atx" id="string-operations-library-字符串操作库">String Operations Library 字符串操作库</h3>
+<ul>
+<li><p>string handling functions in C library</p>
+<pre><code class="fenced-code-block language-c"><span class="token function">gets</span><span class="token punctuation">(</span>str<span class="token punctuation">)</span>  <span class="token comment">//Input a string;</span>
+<span class="token function">puts</span><span class="token punctuation">(</span>str<span class="token punctuation">)</span> <span class="token comment">//Output a string；</span>
+<span class="token function">strcat</span><span class="token punctuation">(</span>str1<span class="token punctuation">,</span> str2<span class="token punctuation">)</span>  <span class="token comment">// string Concatenation；</span>
+<span class="token function">strcpy</span><span class="token punctuation">(</span>str1<span class="token punctuation">,</span> str2<span class="token punctuation">,</span> k<span class="token punctuation">)</span>  <span class="token comment">//String copy；</span>
+<span class="token function">strcmp</span><span class="token punctuation">(</span>str1<span class="token punctuation">,</span> str2<span class="token punctuation">)</span> <span class="token comment">//String comparision；</span>
+<span class="token function">strlen</span><span class="token punctuation">(</span>str<span class="token punctuation">)</span>  <span class="token comment">//Get the length of striag-0-1i9q1q79bag-1-1i9q1q79bng </span></code></pre>
+</li>
+</ul>
+<h2 class="atx" id="there-presentation-and-implementation-of-string--字符串的表示和实现">There presentation and implementation of String&nbsp; 字符串的表示和实现</h2>
+<ul>
+<li><p>Three implementations</p>
+<ul>
+<li><p>Fixedlength array&nbsp; // static  固定长度数组，静态数据</p>
+</li>
+<li><p>Linked List&nbsp; //dynamic 链表，动态数据</p>
+</li>
+<li><p>Heaparray&nbsp; //dynamic 堆空间，动态数据</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 class="atx" id="fixed-length-array-固定长度数组">fixed length array 固定长度数组</h3>
+<pre><code class="fenced-code-block language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span> <span class="token macro-name">MAXLEN</span> <span class="token expression">user_supply</span></span>
+<span class="token keyword">typedef</span> <span class="token keyword">struct</span>   <span class="token punctuation">{</span>
+     <span class="token keyword">char</span> str<span class="token punctuation">[</span>MAXLEN<span class="token punctuation">]</span><span class="token punctuation">;</span>
+     <span class="token keyword">int</span> curlen<span class="token punctuation">;</span>
+<span class="token punctuation">}</span> string<span class="token punctuation">;</span></code></pre>
+<pre><code class="fenced-code-block language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span>  <span class="token macro-name">MAXLEN</span>   <span class="token expression"><span class="token number">255</span></span></span>
+<span class="token keyword">typedef</span> <span class="token keyword">char</span> lstring<span class="token punctuation">[</span> MAXLEN<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token comment">// string[0] denotes the length of the string</span></code></pre>
+<h3 class="atx" id="linked-list-链表-1">linked list 链表</h3>
+<p><img alt="f6d15281-958c-4967-8d66-b6c1a0ca5da7" src="file:///C:/Users/20999/Pictures/Typedown/f6d15281-958c-4967-8d66-b6c1a0ca5da7.png"></p>
+<pre><code class="fenced-code-block language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span>  <span class="token macro-name">NODELEN</span>   <span class="token expression">user_supply  </span><span class="token comment">//maxlength</span></span>
+<span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token class-name">node</span> <span class="token punctuation">{</span>
+     <span class="token keyword">char</span> ch<span class="token punctuation">;</span>
+      <span class="token comment">//  char ch [NODELEN]; //chunk size</span>
+       <span class="token keyword">struct</span>  <span class="token class-name">node</span>  <span class="token operator">*</span>next<span class="token punctuation">;</span>
+<span class="token punctuation">}</span> node<span class="token punctuation">,</span><span class="token operator">*</span>pointer<span class="token punctuation">;</span>                </code></pre>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">typedef</span> <span class="token keyword">struct</span>    <span class="token punctuation">{</span>
+      pointer head<span class="token punctuation">,</span> tail<span class="token punctuation">;</span>
+      <span class="token keyword">int</span>   length<span class="token punctuation">;</span>
+<span class="token punctuation">}</span> linkedstring<span class="token punctuation">;</span></code></pre>
+<h2 class="atx" id="pattern-matching-algorithm-模式配对算法">Pattern Matching algorithm 模式配对算法</h2>
+<ul>
+<li><p>PatternMatching ：Getthe position of pattern string in main string
+模式匹配: 获取模式字符串在主字符串中的位置</p>
+</li>
+<li><p>Method：Compare the pattern string T to main string S fromposition pos, if the character does notmatch, right moving pattern string.
+方法: 将模式字符串 T 与主字符串 S 从位置点进行比较，如果字符不匹配，则右移模式字符串。</p>
+</li>
+</ul>
+<h3 class="atx" id="process-of-basic-matching--基本匹配过程">Process of basic matching&nbsp; 基本匹配过程</h3>
 </article>
   
 </body>
