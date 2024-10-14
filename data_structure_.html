@@ -3712,6 +3712,7 @@ If there is a sub<span class="token operator">-</span>string in S<span class="to
 <span class="token keyword">typedef</span> <span class="token keyword">char</span> lstring<span class="token punctuation">[</span> MAXLEN<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
 <span class="token comment">// string[0] denotes the length of the string</span></code></pre>
 <h3 class="atx" id="linked-list-链表-1">linked list 链表</h3>
+<p>（一个node存一个char效率太低，可以用块）</p>
 <p><img alt="f6d15281-958c-4967-8d66-b6c1a0ca5da7" src="file:///C:/Users/20999/Pictures/Typedown/f6d15281-958c-4967-8d66-b6c1a0ca5da7.png"></p>
 <pre><code class="fenced-code-block language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">define</span>  <span class="token macro-name">NODELEN</span>   <span class="token expression">user_supply  </span><span class="token comment">//maxlength</span></span>
 <span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token class-name">node</span> <span class="token punctuation">{</span>
@@ -3733,6 +3734,209 @@ If there is a sub<span class="token operator">-</span>string in S<span class="to
 </li>
 </ul>
 <h3 class="atx" id="process-of-basic-matching--基本匹配过程">Process of basic matching&nbsp; 基本匹配过程</h3>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">int</span> <span class="token function">find_sub_string</span><span class="token punctuation">(</span>string s<span class="token punctuation">,</span> string t<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>    <span class="token comment">//初始化两个指针</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>i<span class="token operator">&lt;</span>s<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> j<span class="token operator">&lt;</span>t<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>s<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> t<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            i<span class="token operator">++</span><span class="token punctuation">;</span>    <span class="token comment">//如果两个指针指向的字符相等</span>
+            j<span class="token operator">++</span><span class="token punctuation">;</span>    <span class="token comment">//则将两个指针向后移动</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">else</span><span class="token punctuation">{</span>
+            i <span class="token operator">=</span> i <span class="token operator">-</span> j <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>    <span class="token comment">//匹配失败，i退回到上次匹配首位的下一位</span>
+            j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>            <span class="token comment">//j退回到子串首位</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>j<span class="token operator">&gt;=</span>t<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>    <span class="token comment">//j走到子串末尾说明匹配成功</span>
+        <span class="token keyword">return</span> i <span class="token operator">-</span> j<span class="token punctuation">;</span>    <span class="token comment">//匹配成功返回主串中子串出现的第一位</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span> 
+        <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>        <span class="token comment">//匹配失败，返回-1</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<ul>
+<li><p>Basic match algorithm is inefficient
+基本匹配算法效率低下
+The time complexity of simple match algorithm in worst situation is O(n*m) （nis the length of S and m is the length of m pattern T）. &nbsp;(n-m+1)*m &nbsp;comparison 。(the example below)
+简单匹配算法在最坏情况下的时间复杂度为 O (n * m)(等于 S 的长度，m 等于 m 模式 T 的长度)。(n-m + 1) * m 比较。</p>
+</li>
+<li><p>最好的情况是一开始就匹配成功了，如主串为"googlegood"，子串为"google"，此时的时间复杂度为O(m)(m为子串长度)
+那最坏的情况是什么呢？最坏的情况就是每次不成功的匹配都发生在子串末尾，就如《大话数据结构》书中的例子，主串为S=“00000000000000000000000000000000000000000000000001”，子串为T=“0000000001”，推导一下可得此时的时间复杂度度为O((n-m+1)*m)(n为主串长度)。</p>
+</li>
+</ul>
+<h3 class="atx" id="knuth-morris-pratt--kmp-algorithms-knuth-morris-pratt-kmp-算法">Knuth-Morris-Pratt  (KMP Algorithms) Knuth-Morris-Pratt (KMP 算法)</h3>
+<p>KMP（Knuth-Morris-Pratt）字符串匹配算法是一个经典的字符串查找算法，用于从文本中找到给定模式的位置。它比暴力匹配更有效，因为它利用了部分匹配的结果来避免重复的比较。下面是对KMP算法的详细图解，包括如何计算部分匹配表（也叫前缀函数）和匹配过程。</p>
+<h4 class="atx" id="一、kmp算法概述">一、KMP算法概述</h4>
+<p>KMP算法的关键在于，当一个字符不匹配时，利用之前计算好的信息决定下一个匹配的位置，而不需要回退到原始位置。它的核心在于构造一个部分匹配表（Partial Match Table，通常叫“next数组”），该表用于指示模式串在不匹配时应该跳转到哪里继续匹配。</p>
+<h5 class="atx" id="kmp-算法的步骤：">KMP 算法的步骤：</h5>
+<ol>
+<li><strong>构造部分匹配表（next数组）</strong>。</li>
+<li><strong>利用next数组实现快速匹配</strong>。</li>
+</ol>
+<h4 class="atx" id="二、构造部分匹配表（next数组）">二、构造部分匹配表（next数组）</h4>
+<p>next数组用于记录模式串中每个位置的最长相等前后缀的长度，它帮助我们在匹配失败时快速找到下一个位置继续匹配。</p>
+<ul>
+<li><p>假设模式串为 <code>pattern = "ABCDABD"</code>。</p>
+</li>
+<li><p>我们定义 next 数组表示当前字符之前的字符串中，最长的前缀和后缀的匹配长度。</p>
+</li>
+</ul>
+<ol>
+<li><p><strong>初始化 next 数组</strong>:</p>
+<ul>
+<li>构建一个数组 <code>next</code>，长度与 <code>pattern</code> 相同。</li>
+<li>设置 <code>next[0] = 0</code>，因为在第一个字符之前没有前缀或后缀。</li>
+</ul>
+</li>
+<li><p><strong>填充 next 数组</strong>:</p>
+<ul>
+<li>使用两个指针，<code>j</code> 指向前缀末尾，<code>i</code> 指向后缀末尾。</li>
+<li>开始时 <code>j = 0</code>，从 <code>i = 1</code> 开始计算 next 数组。</li>
+</ul>
+</li>
+<li><p><strong>计算过程</strong>：</p>
+<ul>
+<li>如果 <code>pattern[i] == pattern[j]</code>，说明前缀和后缀匹配，则 <code>next[i] = j + 1</code>，然后 <code>i++</code> 和 <code>j++</code>。</li>
+<li>如果 <code>pattern[i] != pattern[j]</code>，说明不匹配，且 <code>j &gt; 0</code>，则更新 <code>j = next[j - 1]</code>，继续尝试匹配。</li>
+<li>如果 <code>j == 0</code>，则 <code>next[i] = 0</code>，然后 <code>i++</code>。</li>
+</ul>
+</li>
+</ol>
+<p><strong>示例：构建 next 数组</strong></p>
+<ul>
+<li>对于 <code>pattern = "ABCDABD"</code>，最终得到 <code>next = [0, 0, 0, 0, 1, 2, 0]</code>。</li>
+</ul>
+<p>图解计算过程如下：</p>
+<pre><code class="fenced-code-block">pattern: A B C D A B D
+next   : 0 0 0 0 1 2 0</code></pre>
+<ul>
+<li><code>next[4] = 1</code>：<code>pattern[0]</code> 和 <code>pattern[4]</code> 都是 <code>A</code>，因此最长匹配前后缀长度为 <code>1</code>。</li>
+<li><code>next[5] = 2</code>：<code>pattern[0:1]</code> 和 <code>pattern[3:4]</code> 均匹配，因此长度为 <code>2</code>。</li>
+</ul>
+<h4 class="atx" id="三、kmp字符串匹配过程">三、KMP字符串匹配过程</h4>
+<ol>
+<li><p><strong>初始化指针</strong>：</p>
+<ul>
+<li>指针 <code>i</code> 指向文本串 <code>text</code>，指针 <code>j</code> 指向模式串 <code>pattern</code>。</li>
+</ul>
+</li>
+<li><p><strong>匹配过程</strong>：</p>
+<ul>
+<li>如果 <code>text[i] == pattern[j]</code>，则 <code>i++</code>，<code>j++</code>，继续比较下一个字符。</li>
+<li>如果 <code>text[i] != pattern[j]</code> 且 <code>j &gt; 0</code>，则不回退 <code>i</code>，而是将 <code>j</code> 更新为 <code>next[j - 1]</code>，继续比较。</li>
+<li>如果 <code>j == 0</code>，说明模式串的第一个字符就不匹配，<code>i++</code>，然后重新开始匹配。</li>
+</ul>
+</li>
+<li><p><strong>结束条件</strong>：</p>
+<ul>
+<li>如果 <code>j == pattern.length</code>，说明匹配成功，找到了模式串。</li>
+<li>如果 <code>i == text.length</code>，且没有找到匹配，则匹配失败。</li>
+</ul>
+</li>
+</ol>
+<p><strong>示例：匹配过程</strong></p>
+<ul>
+<li>假设 <code>text = "ABC ABCDAB ABCDABCDABDE"</code>，<code>pattern = "ABCDABD"</code>。</li>
+<li>根据 <code>next</code> 数组 <code>[0, 0, 0, 0, 1, 2, 0]</code>：<ol>
+<li>匹配到 <code>text</code> 中的第一个 <code>ABCD</code> 时，发现 <code>D</code> 与模式串的 <code>A</code> 不匹配。</li>
+<li>利用 <code>next</code> 数组将 <code>j</code> 退回到 <code>next[3] = 0</code>，继续匹配。</li>
+<li>直到找到整个模式串 <code>ABCDABD</code>。</li>
+</ol>
+</li>
+</ul>
+<h4 class="atx" id="四、图解流程">四、图解流程</h4>
+<ol>
+<li><p><strong>文本串和模式串的对齐</strong></p>
+<pre><code class="fenced-code-block">text   : A B C A B C D A B C D A B C D A B D E
+pattern: A B C D A B D
+         0 1 2 3 4 5 6  &lt;- next 数组</code></pre>
+</li>
+<li><p><strong>匹配过程动态变化</strong></p>
+<ul>
+<li>初始时，<code>i = 0, j = 0</code>，开始匹配。</li>
+<li>匹配成功直到 <code>j = 4</code> 时，文本中 <code>text[i]</code> 与 <code>pattern[j]</code> 不匹配，<code>j</code> 利用 <code>next</code> 数组调整，避免重复匹配。</li>
+</ul>
+</li>
+</ol>
+<h4 class="atx" id="五、kmp算法的时间复杂度">五、KMP算法的时间复杂度</h4>
+<ul>
+<li><strong>构造 next 数组</strong>：<code>O(m)</code>，<code>m</code> 是模式串的长度。</li>
+<li><strong>匹配过程</strong>：<code>O(n)</code>，<code>n</code> 是文本串的长度。</li>
+<li><strong>总时间复杂度</strong>：<code>O(m + n)</code>。</li>
+</ul>
+<p>KMP算法通过利用部分匹配表，在匹配失败时避免回退，有效地提高了匹配效率，是字符串匹配领域中一个重要的算法。</p>
+<h4 class="atx" id="六、总结">六、总结</h4>
+<ul>
+<li><strong>next 数组的作用</strong>：next 数组帮助我们在匹配失败时快速跳转，而不是回溯到开头。</li>
+<li><strong>如何使用</strong>：在匹配时，当遇到不匹配的情况，根据 <code>next</code> 数组跳转，避免从头开始匹配，减少重复计算。</li>
+<li><strong>KMP的优势</strong>：它将模式串的预处理和实际的匹配过程分离，使得算法可以在线性时间内完成匹配。</li>
+</ul>
+<p>通过理解 KMP 算法的图解，你可以深入了解如何在文本中高效地找到模式串的位置。</p>
+<h4 class="atx" id="七、代码">七、代码</h4>
+<pre><code class="fenced-code-block language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string.h&gt;</span></span>
+
+<span class="token comment">// 构建部分匹配表（next 数组）</span>
+<span class="token keyword">void</span> <span class="token function">computeNextArray</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pattern<span class="token punctuation">,</span> <span class="token keyword">int</span> <span class="token operator">*</span>next<span class="token punctuation">,</span> <span class="token keyword">int</span> m<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span> length <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>  <span class="token comment">// 最长相等前后缀的长度</span>
+    next<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>     <span class="token comment">// next[0] 总是 0</span>
+
+    <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token keyword">while</span> <span class="token punctuation">(</span>i <span class="token operator">&lt;</span> m<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>pattern<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> pattern<span class="token punctuation">[</span>length<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            length<span class="token operator">++</span><span class="token punctuation">;</span>
+            next<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> length<span class="token punctuation">;</span>
+            i<span class="token operator">++</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>length <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                length <span class="token operator">=</span> next<span class="token punctuation">[</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                next<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// KMP 字符串匹配算法</span>
+<span class="token keyword">void</span> <span class="token function">KMP</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>text<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pattern<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span> n <span class="token operator">=</span> <span class="token function">strlen</span><span class="token punctuation">(</span>text<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> m <span class="token operator">=</span> <span class="token function">strlen</span><span class="token punctuation">(</span>pattern<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// 构造 next 数组</span>
+    <span class="token keyword">int</span> next<span class="token punctuation">[</span>m<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token function">computeNextArray</span><span class="token punctuation">(</span>pattern<span class="token punctuation">,</span> next<span class="token punctuation">,</span> m<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>  <span class="token comment">// text 的索引</span>
+    <span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>  <span class="token comment">// pattern 的索引</span>
+    <span class="token keyword">while</span> <span class="token punctuation">(</span>i <span class="token operator">&lt;</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>pattern<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">==</span> text<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            i<span class="token operator">++</span><span class="token punctuation">;</span>
+            j<span class="token operator">++</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>j <span class="token operator">==</span> m<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Pattern found at index %d\n"</span><span class="token punctuation">,</span> i <span class="token operator">-</span> j<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            j <span class="token operator">=</span> next<span class="token punctuation">[</span>j <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>i <span class="token operator">&lt;</span> n <span class="token operator">&amp;&amp;</span> pattern<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">!=</span> text<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>j <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                j <span class="token operator">=</span> next<span class="token punctuation">[</span>j <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>text <span class="token operator">=</span> <span class="token string">"ABC ABCDAB ABCDABCDABDE"</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pattern <span class="token operator">=</span> <span class="token string">"ABCDABD"</span><span class="token punctuation">;</span>
+
+    <span class="token function">KMP</span><span class="token punctuation">(</span>text<span class="token punctuation">,</span> pattern<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
 </article>
   
 </body>

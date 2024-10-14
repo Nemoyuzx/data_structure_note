@@ -1531,6 +1531,177 @@ int find_sub_string(string s, string t)
 
 ### Knuth-Morris-Pratt  (KMP Algorithms) Knuth-Morris-Pratt (KMP 算法)
 
+KMP（Knuth-Morris-Pratt）字符串匹配算法是一个经典的字符串查找算法，用于从文本中找到给定模式的位置。它比暴力匹配更有效，因为它利用了部分匹配的结果来避免重复的比较。下面是对KMP算法的详细图解，包括如何计算部分匹配表（也叫前缀函数）和匹配过程。
 
+#### 一、KMP算法概述
+
+KMP算法的关键在于，当一个字符不匹配时，利用之前计算好的信息决定下一个匹配的位置，而不需要回退到原始位置。它的核心在于构造一个部分匹配表（Partial Match Table，通常叫“next数组”），该表用于指示模式串在不匹配时应该跳转到哪里继续匹配。
+
+##### KMP 算法的步骤：
+
+1. **构造部分匹配表（next数组）**。
+2. **利用next数组实现快速匹配**。
+
+#### 二、构造部分匹配表（next数组）
+
+next数组用于记录模式串中每个位置的最长相等前后缀的长度，它帮助我们在匹配失败时快速找到下一个位置继续匹配。
+
+- 假设模式串为 `pattern = "ABCDABD"`。
+
+- 我们定义 next 数组表示当前字符之前的字符串中，最长的前缀和后缀的匹配长度。
+1. **初始化 next 数组**:
+   
+   - 构建一个数组 `next`，长度与 `pattern` 相同。
+   - 设置 `next[0] = 0`，因为在第一个字符之前没有前缀或后缀。
+
+2. **填充 next 数组**:
+   
+   - 使用两个指针，`j` 指向前缀末尾，`i` 指向后缀末尾。
+   - 开始时 `j = 0`，从 `i = 1` 开始计算 next 数组。
+
+3. **计算过程**：
+   
+   - 如果 `pattern[i] == pattern[j]`，说明前缀和后缀匹配，则 `next[i] = j + 1`，然后 `i++` 和 `j++`。
+   - 如果 `pattern[i] != pattern[j]`，说明不匹配，且 `j > 0`，则更新 `j = next[j - 1]`，继续尝试匹配。
+   - 如果 `j == 0`，则 `next[i] = 0`，然后 `i++`。
+
+**示例：构建 next 数组**
+
+- 对于 `pattern = "ABCDABD"`，最终得到 `next = [0, 0, 0, 0, 1, 2, 0]`。
+
+图解计算过程如下：
+
+```
+pattern: A B C D A B D
+next   : 0 0 0 0 1 2 0
+```
+
+- `next[4] = 1`：`pattern[0]` 和 `pattern[4]` 都是 `A`，因此最长匹配前后缀长度为 `1`。
+- `next[5] = 2`：`pattern[0:1]` 和 `pattern[3:4]` 均匹配，因此长度为 `2`。
+
+#### 三、KMP字符串匹配过程
+
+1. **初始化指针**：
+   
+   - 指针 `i` 指向文本串 `text`，指针 `j` 指向模式串 `pattern`。
+
+2. **匹配过程**：
+   
+   - 如果 `text[i] == pattern[j]`，则 `i++`，`j++`，继续比较下一个字符。
+   - 如果 `text[i] != pattern[j]` 且 `j > 0`，则不回退 `i`，而是将 `j` 更新为 `next[j - 1]`，继续比较。
+   - 如果 `j == 0`，说明模式串的第一个字符就不匹配，`i++`，然后重新开始匹配。
+
+3. **结束条件**：
+   
+   - 如果 `j == pattern.length`，说明匹配成功，找到了模式串。
+   - 如果 `i == text.length`，且没有找到匹配，则匹配失败。
+
+**示例：匹配过程**
+
+- 假设 `text = "ABC ABCDAB ABCDABCDABDE"`，`pattern = "ABCDABD"`。
+- 根据 `next` 数组 `[0, 0, 0, 0, 1, 2, 0]`：
+  1. 匹配到 `text` 中的第一个 `ABCD` 时，发现 `D` 与模式串的 `A` 不匹配。
+  2. 利用 `next` 数组将 `j` 退回到 `next[3] = 0`，继续匹配。
+  3. 直到找到整个模式串 `ABCDABD`。
+
+#### 四、图解流程
+
+1. **文本串和模式串的对齐**
+   
+   ```
+   text   : A B C A B C D A B C D A B C D A B D E
+   pattern: A B C D A B D
+            0 1 2 3 4 5 6  <- next 数组
+   ```
+
+2. **匹配过程动态变化**
+   
+   - 初始时，`i = 0, j = 0`，开始匹配。
+   - 匹配成功直到 `j = 4` 时，文本中 `text[i]` 与 `pattern[j]` 不匹配，`j` 利用 `next` 数组调整，避免重复匹配。
+
+#### 五、KMP算法的时间复杂度
+
+- **构造 next 数组**：`O(m)`，`m` 是模式串的长度。
+- **匹配过程**：`O(n)`，`n` 是文本串的长度。
+- **总时间复杂度**：`O(m + n)`。
+
+KMP算法通过利用部分匹配表，在匹配失败时避免回退，有效地提高了匹配效率，是字符串匹配领域中一个重要的算法。
+
+#### 六、总结
+
+- **next 数组的作用**：next 数组帮助我们在匹配失败时快速跳转，而不是回溯到开头。
+- **如何使用**：在匹配时，当遇到不匹配的情况，根据 `next` 数组跳转，避免从头开始匹配，减少重复计算。
+- **KMP的优势**：它将模式串的预处理和实际的匹配过程分离，使得算法可以在线性时间内完成匹配。
+
+通过理解 KMP 算法的图解，你可以深入了解如何在文本中高效地找到模式串的位置。
+
+#### 七、代码
+
+```c
+#include <stdio.h>
+#include <string.h>
+
+// 构建部分匹配表（next 数组）
+void computeNextArray(const char *pattern, int *next, int m) {
+    int length = 0;  // 最长相等前后缀的长度
+    next[0] = 0;     // next[0] 总是 0
+
+    int i = 1;
+    while (i < m) {
+        if (pattern[i] == pattern[length]) {
+            length++;
+            next[i] = length;
+            i++;
+        } else {
+            if (length != 0) {
+                length = next[length - 1];
+            } else {
+                next[i] = 0;
+                i++;
+            }
+        }
+    }
+}
+
+// KMP 字符串匹配算法
+void KMP(const char *text, const char *pattern) {
+    int n = strlen(text);
+    int m = strlen(pattern);
+
+    // 构造 next 数组
+    int next[m];
+    computeNextArray(pattern, next, m);
+
+    int i = 0;  // text 的索引
+    int j = 0;  // pattern 的索引
+    while (i < n) {
+        if (pattern[j] == text[i]) {
+            i++;
+            j++;
+        }
+
+        if (j == m) {
+            printf("Pattern found at index %d\n", i - j);
+            j = next[j - 1];
+        } else if (i < n && pattern[j] != text[i]) {
+            if (j != 0) {
+                j = next[j - 1];
+            } else {
+                i++;
+            }
+        }
+    }
+}
+
+int main() {
+    const char *text = "ABC ABCDAB ABCDABCDABDE";
+    const char *pattern = "ABCDABD";
+
+    KMP(text, pattern);
+
+    return 0;
+}
+
+```
 
 
