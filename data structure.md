@@ -1531,177 +1531,364 @@ int find_sub_string(string s, string t)
 
 ### Knuth-Morris-Pratt  (KMP Algorithms) Knuth-Morris-Pratt (KMP 算法)
 
-KMP（Knuth-Morris-Pratt）字符串匹配算法是一个经典的字符串查找算法，用于从文本中找到给定模式的位置。它比暴力匹配更有效，因为它利用了部分匹配的结果来避免重复的比较。下面是对KMP算法的详细图解，包括如何计算部分匹配表（也叫前缀函数）和匹配过程。
+```c
+def compute_next(pattern):
+    """
+    计算模式串的next数组
+    """
+    m = len(pattern)
+    next = [-1] * m  # 初始化next数组，初值为-1
+    j = 0  # j指向当前前缀的末尾
+    k = -1  # k指向当前可能的相同前后缀的开头
 
-#### 一、KMP算法概述
+    while j < m - 1:  # 因为 j < m-1，所以当j == m-1时，终止
+        if k == -1 or pattern[j] == pattern[k]:
+            j += 1
+            k += 1
+            next[j] = k  # 更新next数组
+        else:
+            k = next[k]  # 尝试前一个最长的相同前后缀
+    return next
 
-KMP算法的关键在于，当一个字符不匹配时，利用之前计算好的信息决定下一个匹配的位置，而不需要回退到原始位置。它的核心在于构造一个部分匹配表（Partial Match Table，通常叫“next数组”），该表用于指示模式串在不匹配时应该跳转到哪里继续匹配。
 
-##### KMP 算法的步骤：
+def KMP(text, pattern):
+    """
+    KMP 字符串匹配算法
+    """
+    n = len(text)
+    m = len(pattern)
 
-1. **构造部分匹配表（next数组）**。
-2. **利用next数组实现快速匹配**。
+    if m == 0:
+        return 0  # 空模式串可以直接匹配
 
-#### 二、构造部分匹配表（next数组）
+    next = compute_next(pattern)  # 计算模式串的next数组
 
-next数组用于记录模式串中每个位置的最长相等前后缀的长度，它帮助我们在匹配失败时快速找到下一个位置继续匹配。
+    i = 0  # text中的索引
+    j = 0  # pattern中的索引
 
-- 假设模式串为 `pattern = "ABCDABD"`。
+    while i < n:
+        if j == -1 or text[i] == pattern[j]:
+            i += 1
+            j += 1
+        else:
+            j = next[j]
 
-- 我们定义 next 数组表示当前字符之前的字符串中，最长的前缀和后缀的匹配长度。
-1. **初始化 next 数组**:
-   
-   - 构建一个数组 `next`，长度与 `pattern` 相同。
-   - 设置 `next[0] = 0`，因为在第一个字符之前没有前缀或后缀。
+        if j == m:  # 找到匹配
+            return i - j  # 返回匹配的起始位置
 
-2. **填充 next 数组**:
-   
-   - 使用两个指针，`j` 指向前缀末尾，`i` 指向后缀末尾。
-   - 开始时 `j = 0`，从 `i = 1` 开始计算 next 数组。
+    return -1  # 没有匹配
 
-3. **计算过程**：
-   
-   - 如果 `pattern[i] == pattern[j]`，说明前缀和后缀匹配，则 `next[i] = j + 1`，然后 `i++` 和 `j++`。
-   - 如果 `pattern[i] != pattern[j]`，说明不匹配，且 `j > 0`，则更新 `j = next[j - 1]`，继续尝试匹配。
-   - 如果 `j == 0`，则 `next[i] = 0`，然后 `i++`。
 
-**示例：构建 next 数组**
-
-- 对于 `pattern = "ABCDABD"`，最终得到 `next = [0, 0, 0, 0, 1, 2, 0]`。
-
-图解计算过程如下：
+# 测试
+text = "ababcabcacbab"
+pattern = "abcac"
+result = KMP(text, pattern)
+print(f"Pattern found at index: {result}")
 
 ```
-pattern: A B C D A B D
-next   : 0 0 0 0 1 2 0
-```
 
-- `next[4] = 1`：`pattern[0]` 和 `pattern[4]` 都是 `A`，因此最长匹配前后缀长度为 `1`。
-- `next[5] = 2`：`pattern[0:1]` 和 `pattern[3:4]` 均匹配，因此长度为 `2`。
+# 数据结构第七节——CH6 Trees 树
 
-#### 三、KMP字符串匹配过程
+- Definitions and Terminology 术语和定义
 
-1. **初始化指针**：
-   
-   - 指针 `i` 指向文本串 `text`，指针 `j` 指向模式串 `pattern`。
+- Implementation of Trees 树的表示
 
-2. **匹配过程**：
-   
-   - 如果 `text[i] == pattern[j]`，则 `i++`，`j++`，继续比较下一个字符。
-   - 如果 `text[i] != pattern[j]` 且 `j > 0`，则不回退 `i`，而是将 `j` 更新为 `next[j - 1]`，继续比较。
-   - 如果 `j == 0`，说明模式串的第一个字符就不匹配，`i++`，然后重新开始匹配。
+- Binary Trees 二叉树
 
-3. **结束条件**：
-   
-   - 如果 `j == pattern.length`，说明匹配成功，找到了模式串。
-   - 如果 `i == text.length`，且没有找到匹配，则匹配失败。
+- Tree traversals 树的遍历
 
-**示例：匹配过程**
+- Threaded Binary Tree 线索二叉树
 
-- 假设 `text = "ABC ABCDAB ABCDABCDABDE"`，`pattern = "ABCDABD"`。
-- 根据 `next` 数组 `[0, 0, 0, 0, 1, 2, 0]`：
-  1. 匹配到 `text` 中的第一个 `ABCD` 时，发现 `D` 与模式串的 `A` 不匹配。
-  2. 利用 `next` 数组将 `j` 退回到 `next[3] = 0`，继续匹配。
-  3. 直到找到整个模式串 `ABCDABD`。
+- The search Tree ADT-Binary Search Trees 二叉搜索树
 
-#### 四、图解流程
+- AVL Trees 平衡二叉树
 
-1. **文本串和模式串的对齐**
-   
-   ```
-   text   : A B C A B C D A B C D A B C D A B D E
-   pattern: A B C D A B D
-            0 1 2 3 4 5 6  <- next 数组
-   ```
+- Forest 森林
 
-2. **匹配过程动态变化**
-   
-   - 初始时，`i = 0, j = 0`，开始匹配。
-   - 匹配成功直到 `j = 4` 时，文本中 `text[i]` 与 `pattern[j]` 不匹配，`j` 利用 `next` 数组调整，避免重复匹配。
+- Huffman Tree  哈夫曼树/最优二叉树
 
-#### 五、KMP算法的时间复杂度
+## Definitions and Terminology
 
-- **构造 next 数组**：`O(m)`，`m` 是模式串的长度。
-- **匹配过程**：`O(n)`，`n` 是文本串的长度。
-- **总时间复杂度**：`O(m + n)`。
+### Definition 定义
 
-KMP算法通过利用部分匹配表，在匹配失败时避免回退，有效地提高了匹配效率，是字符串匹配领域中一个重要的算法。
+- A tree is a collection of nodes.  The collection can be empty; otherwise, a tree consists of  
+  树是节点的集合。该集合可以为空; 否则，树由
+  
+  - a distinguished node r,called the root;  
+    一个可分辨的节点 r，称为根;
+  
+  - and zero or more nonempty (sub) trees $T_1,..., T_k$,each of whose roots are connected by a directed edge from r.  
+    和零个或多个非空(子)树 $T _ 1,... ,T _ k $，每个树的根由 r 的有向边连接。
 
-#### 六、总结
+### Terminology 术语
 
-- **next 数组的作用**：next 数组帮助我们在匹配失败时快速跳转，而不是回溯到开头。
-- **如何使用**：在匹配时，当遇到不匹配的情况，根据 `next` 数组跳转，避免从头开始匹配，减少重复计算。
-- **KMP的优势**：它将模式串的预处理和实际的匹配过程分离，使得算法可以在线性时间内完成匹配。
+- degree of a node = number of subtrees of the node.  For example, degree(A) = 3, degree(F) = 0.  
+  节点的度 = 节点的子树的数目。例如，度(A) = 3，度(F) = 0。
 
-通过理解 KMP 算法的图解，你可以深入了解如何在文本中高效地找到模式串的位置。
+- degree of a tree = $\max_{node\in free} \{ degree(node)\}$    
+  树的度 = $max _ {自由中的节点}\{度(节点)\} $
 
-#### 七、代码
+- parent = a node that has subtrees.  
+  双亲 = 具有子树的节点
+
+- children = the roots of the subtrees of a parent.  
+  孩子 = 双亲子树的根
+
+- siblings = children of the same parent.   
+  兄弟 = 双亲的子女
+
+- leaf ( terminal node ) 叶(终端节点) = a node with degree 0 (no children).
+
+- path from $n_1$ to $n_k$  从 $n _ 1 $到 $n _ k $的路径= a (unique) sequence of nodes $n_1, n_2, …, n_k$  such that ni is the parent of $n_{i+1}$ for $1 < i < k$.
+
+- length of path  路径长度= number of edges on the path.
+
+- depth of $n_i$ 深度 $n _ i $  = length of the unique path from the root to $n_i$.   Depth(root) = 0.
+
+- height of $n_i$ 高度 $n _ i $= length of the longest path from $n_i$ to aleaf.  Height(leaf) = 0, and height(D) =2.
+
+- height (depth) of a tree  树的高度(深度) = height(root)= depth(deepest leaf).
+
+- ancestors of a node  节点的祖先 = all the nodes along the path from the node up to the root.
+
+- descendants of a node  节点的后代 = all the nodes in its subtrees.
+
+---
+
+![5bc777fc-4346-4e07-9212-7f8ab5d8c9ea](./images/5bc777fc-4346-4e07-9212-7f8ab5d8c9ea.png)
+
+- 考虑结点K。根A到结点K的唯一路径上的任意结点,称为结点K的**祖先**。如结点B是结点K的祖先,而结点K是结点B的**子孙**。路径上最接近结点K的结点E称为K的**双亲**,而K为结点E的**孩子**。根A是树中唯一没有双亲的结点。有相同双亲的结点称为**兄弟**,如结点K和结点L有相同的双亲E,即K和L为兄弟。
+
+- 树中一个结点的孩子个数称为该**结点的度**,树中结点的最大度数称为**树的度**。如结点B的度为2,结点D的度为3,树的度为3。
+
+- 度大于0的结点称为**分支结点**(又称非终端结点);度为0(没有子女结点)的结点称为**叶子结点**(又称终端结点)。在分支结点中,每个结点的分支数就是该结点的度。
+
+- 结点的深度、高度和层次。
+  
+  - **结点的层次**从树根开始定义,根结点为第1层,它的子结点为第2层,以此类推。双亲在同一层的结点互为**堂兄弟**,图中结点G与E,F,H,I,J互为堂兄弟。
+  
+  - **结点的深度**是从根结点开始自顶向下逐层累加的。
+  
+  - **结点的高度**是从叶结点开始自底向上逐层累加的。
+  
+  - **树的高度(或深度)** 是树中结点的最大层数。图中树的高度为4。
+
+- 有序树和无序树。树中结点的各子树从左到右是有次序的,不能互换,称该树为**有序树**,否则称为**无序树**。假设图为有序树,若将子结点位置互换,则变成一棵不同的树。
+
+- 路径和路径长度。树中两个结点之间的**路径**是由这两个结点之间所经过的结点序列构成的,而**路径长度**是路径上所经过的边的个数。
+  注意:由于树中的分支是有向的,即从双亲指向孩子,所以树中的路径是从上向下的,同一双亲的两个孩子之间不存在路径。
+  森林。**森林**是m (m≥0)棵互不相交的树的集合。森林的概念与树的概念十分相近，因为只要把树的根结点删去就成了森林。反之，只要给m棵独立的树加上一个结点，并把这m棵树作为该结点的子树，则森林就变成了树。
+
+---
+
+### ADT Tree
+
+- ADT Tree  ={ D,R }    
+  
+  - D (Data objects ):  
+                $ \{ D = \{ a_i | a_i \in Elemse, (i=1,2,…,n, n \ge 0) \} $  
+  
+  - R (Relationships of Data Elements):  
+                 { Recursive Definition of a tree }
+
+- Basic Operations:  
+  
+  - initiate
+  
+  - Root
+  
+  - Parent
+  
+  - Child
+  
+  - Create Tree
+  
+  - Clear
+  
+  - Insert_Child
+  
+  - Del_Child
+  
+  - Traverse
+  
+  - Right_Sibling
+
+## Implementation of Trees 树的实现
+
+### List Representation 链表表示
+
+- ( A ( B ( E ( K, L ), F ), C ( G ), D ( H( M ), I, J ) ) )
+
+- ![c40f1f16-97aa-4c5d-9f6f-dd992d12bd6b](./images/c40f1f16-97aa-4c5d-9f6f-dd992d12bd6b.png)
+  
+  - So the size of each node depends on the number of branches.
+  
+  - Node storage takes the maximum size, That’s not good.
+
+#### FirstChild-NextSibling Representation “左孩子右兄弟”表示法
+
+![9e9013eb-d2ed-4a65-b8c7-5a47b089b2aa](./images/9e9013eb-d2ed-4a65-b8c7-5a47b089b2aa.png)
+
+![d4395505-19a4-44cb-8087-e4148ab85673](./images/d4395505-19a4-44cb-8087-e4148ab85673.png)
+
+Note:  The representation is not unique since the children in a tree can be of any order.  
+注意: 表示并不唯一，因为树中的子元素可以是任意顺序的。
+
+## Binary Trees 二叉树
+
+- 【Definition】A binary tree is a tree in which no node can have morethan two children.   
+  [定义]二叉树是一种树，其中任何节点都不能有两个以上的子节点。
+
+![bda9aba7-1add-4e0c-ab42-05ad79f0cc05](./images/bda9aba7-1add-4e0c-ab42-05ad79f0cc05.png)
+
+### Special Binary Trees 特殊二叉树
+
+- Full binary tree 满二叉树
+  
+  - Containsthe maximum number of nodes in all levels  
+    包含所有级别中的最大节点数
+  
+  - ![e541e1e3-6aab-4639-855c-2ed5d5a02332](./images/e541e1e3-6aab-4639-855c-2ed5d5a02332.png)
+
+- Complete binary tree 完全二叉树
+  
+  - All its levels except possibly the last level have the maximum number of nodes andall nodes at the last level appear as far left as possible.  
+    它的所有级别，除了最后一个级别可能有最大的节点数和所有节点在最后一个级别出现尽可能远的左边。
+  
+  - ![89889e71-1156-4fa1-b696-d1098887b7e9](./images/89889e71-1156-4fa1-b696-d1098887b7e9.png)
+
+### Properties 性质
+
+- The maximum number of nodes on level i of a binary tree is $2^i , i\ge 0$ .  
+  二叉树的级别 i 上的最大节点数是 $2 ^ i，i \ge 0 $。
+
+- The maximum number of nodes in a binary tree of depth k is $2^{k+1}-1,k\ge 0$.  
+  深度为 k 的二叉树的最大节点数为 $2 ^ { k + 1}-1，k \ge 0 $。
+
+- For any nonempty binary tree, T, if $n_0$ is the number of leaf nodes and $n_2$ is the number of nodes of degree 2, then $n_0 = n_2 + 1$.  
+  对于任何非空二叉树 T，如果 $n _ 0 $是叶节点数，$n _ 2 $是度2的节点数，那么 $n _ 0 = n _ 2 + 1 $。
+  
+  - node = $n_0+n_1+n_2$; 
+  
+  - edge =  node -1
+  
+  - edge = $n_1+2n_2 \ge n_0=n_2+1$ 
+
+- The height of a complete binarytree with n nodes is  $\left \lfloor log_2n \right \rfloor $ , $\left \lfloor X \right \rfloor $ is the largest integer less then $X$.   
+   具有 n 个节点的完整二叉树的高度是 $\left \lfloor log _ 2n \right \rfloor $，$\left \lfloor X \right \rfloor $是小于 $X $的最大整数（向下取整）。
+
+- 5.   If a complete binary tree with n nodes is represented sequentially, then for any node with index i,$1\le i \le n$,we have
+  
+  - parent(i) is at$\left \lfloor \frac{i}{2} \right \rfloor if \ i \ne 1$.  
+     If i = 1, i is at the root and has no parent.
+  
+  - LeftChild(i) is at $2i \ if \ 2i \le n$.  
+     If $2i > n$ ,then i has no left child.
+  
+  - RightChild(i) is at $2i+1$ if $2i+1 \le n$.  
+     If $2i +1 > n$ ,then i has no right child
+  
+  - ![656b074b-06d4-4832-ae6b-9edbe8e89451](./images/656b074b-06d4-4832-ae6b-9edbe8e89451.png)
+  
+  - ![981b2023-3df2-4548-8f4a-6f04bc351edd](./images/981b2023-3df2-4548-8f4a-6f04bc351edd.png)
+
+### Array implementation of Binarytree 二叉树的数组实现
+
+![0a4f1b4b-f488-4e5c-b6c1-f2c63e34f319](./images/0a4f1b4b-f488-4e5c-b6c1-f2c63e34f319.png)
+
+- Disadvantages
+  
+  - Wastespaces: in the worst case, a skewed tree of depth k requires $2^{k+1}+1$ spaces. Of these, only $k+1$ spaces will be occupied  
+    浪费空间: 在最坏的情况下，一个深度为 k 的倾斜树需要 $2 ^ { k + 1} + 1 $空间。其中，只有 $k + 1 $空间将被占用
+  
+  - Insertionor deletion of nodes from the middle of a tree requires the movementof  potentially many nodes toreflect the change in the level of these nodes  
+    从树的中间插入或删除节点需要潜在的许多节点的移动来反映这些节点级别的变化
+
+### Binary linked list implementation 链表实现
+
+![31447f92-912b-4e14-ab29-086f41f81790](./images/31447f92-912b-4e14-ab29-086f41f81790.png)
 
 ```c
-#include <stdio.h>
-#include <string.h>
+typedef struct node   {
+    elemtype data;
+    struct node *lchild, *rchild;
+} node, *bitptr;
 
-// 构建部分匹配表（next 数组）
-void computeNextArray(const char *pattern, int *next, int m) {
-    int length = 0;  // 最长相等前后缀的长度
-    next[0] = 0;     // next[0] 总是 0
+```
 
-    int i = 1;
-    while (i < m) {
-        if (pattern[i] == pattern[length]) {
-            length++;
-            next[i] = length;
-            i++;
-        } else {
-            if (length != 0) {
-                length = next[length - 1];
-            } else {
-                next[i] = 0;
-                i++;
-            }
-        }
+### Binary tree applications-- Expression Trees (syntax trees) 二叉树应用程序——表达式树(语法树)
+
+![68327ad4-4e73-44d3-82ef-a2dc6c1bb099](./images/68327ad4-4e73-44d3-82ef-a2dc6c1bb099.png)
+
+## Tree traversal 树的遍历
+
+- preorder 先序遍历 DLR  先访问根结点， 然后是左子树， 再然后是右子树。
+
+- inorder 中序遍历 LDR 先访问的是左子树， 然后是根， 再然后是右子树。
+
+- postorder 后序遍历 LRD 先访问的是左子树， 然后是右子树， 再然后是根。
+
+D:Root;  L: Left subtree;  R: Right subtree （递归调用）
+
+```c
+void Preorder ( struct  node *t )  {
+    if ( t ) {
+        visit ( t );
+        Preorder (t->lchild);
+        Preorder (t->rchild);
     }
-}
-
-// KMP 字符串匹配算法
-void KMP(const char *text, const char *pattern) {
-    int n = strlen(text);
-    int m = strlen(pattern);
-
-    // 构造 next 数组
-    int next[m];
-    computeNextArray(pattern, next, m);
-
-    int i = 0;  // text 的索引
-    int j = 0;  // pattern 的索引
-    while (i < n) {
-        if (pattern[j] == text[i]) {
-            i++;
-            j++;
-        }
-
-        if (j == m) {
-            printf("Pattern found at index %d\n", i - j);
-            j = next[j - 1];
-        } else if (i < n && pattern[j] != text[i]) {
-            if (j != 0) {
-                j = next[j - 1];
-            } else {
-                i++;
-            }
-        }
-    }
-}
-
-int main() {
-    const char *text = "ABC ABCDAB ABCDABCDABDE";
-    const char *pattern = "ABCDABD";
-
-    KMP(text, pattern);
-
-    return 0;
 }
 
 ```
 
+```c
+void  Inorder ( bitptr t )  {
+    if   ( t )   {
+        Inorder (t->lchild);
+        visit ( t );
+        Inorder (t->rchild);
+    }
+}
+```
 
+```c
+void  Postorder ( struct  node *t )  {
+    if   ( t )   {
+        Postorder (t->lchild);
+        Postorder (t->rchild);
+        visit ( t );
+    }
+}
+
+```
+
+### Non-recursive preorder traversal 非递归预序遍历
+
+```c
+void  Preorder (struct  node  * t)   {             
+    Inistack(s); 
+     if  ( t )  Push( s,  t );
+     while  ( ! Empty( s ) ) {
+           Pop( s,  t );
+           visit( t );
+          if  ( t->rchild )  Push( s, t->rchild );
+       if  ( t->lchild )  Push( s, t->lchild );
+     }
+}
+```
+
+```c
+void  Postorder (struct  node  * t)   {             
+    Inistack(s); 
+        while  ( t ||  ! Empty(s))  {
+            while  ( t )  { Push( s, ( t , ‘L’));  t=t->lchild; }
+            tag=‘R’;
+            while  ( !Empty(s)  &&  (tag==‘R’))  {
+                (t, tag)=Pop(s);
+                if  (tag==‘L’)  { Push( s, (t, ‘R’));   t=t->rchild;  }
+                else  {  visit( t );  t=NULL; }
+            }
+        }
+}
+
+```

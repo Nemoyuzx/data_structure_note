@@ -3765,176 +3765,336 @@ The time complexity of simple match algorithm in worst situation is O(n*m) （ni
 </li>
 </ul>
 <h3 class="atx" id="knuth-morris-pratt--kmp-algorithms-knuth-morris-pratt-kmp-算法">Knuth-Morris-Pratt  (KMP Algorithms) Knuth-Morris-Pratt (KMP 算法)</h3>
-<p>KMP（Knuth-Morris-Pratt）字符串匹配算法是一个经典的字符串查找算法，用于从文本中找到给定模式的位置。它比暴力匹配更有效，因为它利用了部分匹配的结果来避免重复的比较。下面是对KMP算法的详细图解，包括如何计算部分匹配表（也叫前缀函数）和匹配过程。</p>
-<h4 class="atx" id="一、kmp算法概述">一、KMP算法概述</h4>
-<p>KMP算法的关键在于，当一个字符不匹配时，利用之前计算好的信息决定下一个匹配的位置，而不需要回退到原始位置。它的核心在于构造一个部分匹配表（Partial Match Table，通常叫“next数组”），该表用于指示模式串在不匹配时应该跳转到哪里继续匹配。</p>
-<h5 class="atx" id="kmp-算法的步骤：">KMP 算法的步骤：</h5>
-<ol>
-<li><strong>构造部分匹配表（next数组）</strong>。</li>
-<li><strong>利用next数组实现快速匹配</strong>。</li>
-</ol>
-<h4 class="atx" id="二、构造部分匹配表（next数组）">二、构造部分匹配表（next数组）</h4>
-<p>next数组用于记录模式串中每个位置的最长相等前后缀的长度，它帮助我们在匹配失败时快速找到下一个位置继续匹配。</p>
-<ul>
-<li><p>假设模式串为 <code>pattern = "ABCDABD"</code>。</p>
-</li>
-<li><p>我们定义 next 数组表示当前字符之前的字符串中，最长的前缀和后缀的匹配长度。</p>
-</li>
-</ul>
-<ol>
-<li><p><strong>初始化 next 数组</strong>:</p>
-<ul>
-<li>构建一个数组 <code>next</code>，长度与 <code>pattern</code> 相同。</li>
-<li>设置 <code>next[0] = 0</code>，因为在第一个字符之前没有前缀或后缀。</li>
-</ul>
-</li>
-<li><p><strong>填充 next 数组</strong>:</p>
-<ul>
-<li>使用两个指针，<code>j</code> 指向前缀末尾，<code>i</code> 指向后缀末尾。</li>
-<li>开始时 <code>j = 0</code>，从 <code>i = 1</code> 开始计算 next 数组。</li>
-</ul>
-</li>
-<li><p><strong>计算过程</strong>：</p>
-<ul>
-<li>如果 <code>pattern[i] == pattern[j]</code>，说明前缀和后缀匹配，则 <code>next[i] = j + 1</code>，然后 <code>i++</code> 和 <code>j++</code>。</li>
-<li>如果 <code>pattern[i] != pattern[j]</code>，说明不匹配，且 <code>j &gt; 0</code>，则更新 <code>j = next[j - 1]</code>，继续尝试匹配。</li>
-<li>如果 <code>j == 0</code>，则 <code>next[i] = 0</code>，然后 <code>i++</code>。</li>
-</ul>
-</li>
-</ol>
-<p><strong>示例：构建 next 数组</strong></p>
-<ul>
-<li>对于 <code>pattern = "ABCDABD"</code>，最终得到 <code>next = [0, 0, 0, 0, 1, 2, 0]</code>。</li>
-</ul>
-<p>图解计算过程如下：</p>
-<pre><code class="fenced-code-block">pattern: A B C D A B D
-next   : 0 0 0 0 1 2 0</code></pre>
-<ul>
-<li><code>next[4] = 1</code>：<code>pattern[0]</code> 和 <code>pattern[4]</code> 都是 <code>A</code>，因此最长匹配前后缀长度为 <code>1</code>。</li>
-<li><code>next[5] = 2</code>：<code>pattern[0:1]</code> 和 <code>pattern[3:4]</code> 均匹配，因此长度为 <code>2</code>。</li>
-</ul>
-<h4 class="atx" id="三、kmp字符串匹配过程">三、KMP字符串匹配过程</h4>
-<ol>
-<li><p><strong>初始化指针</strong>：</p>
-<ul>
-<li>指针 <code>i</code> 指向文本串 <code>text</code>，指针 <code>j</code> 指向模式串 <code>pattern</code>。</li>
-</ul>
-</li>
-<li><p><strong>匹配过程</strong>：</p>
-<ul>
-<li>如果 <code>text[i] == pattern[j]</code>，则 <code>i++</code>，<code>j++</code>，继续比较下一个字符。</li>
-<li>如果 <code>text[i] != pattern[j]</code> 且 <code>j &gt; 0</code>，则不回退 <code>i</code>，而是将 <code>j</code> 更新为 <code>next[j - 1]</code>，继续比较。</li>
-<li>如果 <code>j == 0</code>，说明模式串的第一个字符就不匹配，<code>i++</code>，然后重新开始匹配。</li>
-</ul>
-</li>
-<li><p><strong>结束条件</strong>：</p>
-<ul>
-<li>如果 <code>j == pattern.length</code>，说明匹配成功，找到了模式串。</li>
-<li>如果 <code>i == text.length</code>，且没有找到匹配，则匹配失败。</li>
-</ul>
-</li>
-</ol>
-<p><strong>示例：匹配过程</strong></p>
-<ul>
-<li>假设 <code>text = "ABC ABCDAB ABCDABCDABDE"</code>，<code>pattern = "ABCDABD"</code>。</li>
-<li>根据 <code>next</code> 数组 <code>[0, 0, 0, 0, 1, 2, 0]</code>：<ol>
-<li>匹配到 <code>text</code> 中的第一个 <code>ABCD</code> 时，发现 <code>D</code> 与模式串的 <code>A</code> 不匹配。</li>
-<li>利用 <code>next</code> 数组将 <code>j</code> 退回到 <code>next[3] = 0</code>，继续匹配。</li>
-<li>直到找到整个模式串 <code>ABCDABD</code>。</li>
-</ol>
-</li>
-</ul>
-<h4 class="atx" id="四、图解流程">四、图解流程</h4>
-<ol>
-<li><p><strong>文本串和模式串的对齐</strong></p>
-<pre><code class="fenced-code-block">text   : A B C A B C D A B C D A B C D A B D E
-pattern: A B C D A B D
-         0 1 2 3 4 5 6  &lt;- next 数组</code></pre>
-</li>
-<li><p><strong>匹配过程动态变化</strong></p>
-<ul>
-<li>初始时，<code>i = 0, j = 0</code>，开始匹配。</li>
-<li>匹配成功直到 <code>j = 4</code> 时，文本中 <code>text[i]</code> 与 <code>pattern[j]</code> 不匹配，<code>j</code> 利用 <code>next</code> 数组调整，避免重复匹配。</li>
-</ul>
-</li>
-</ol>
-<h4 class="atx" id="五、kmp算法的时间复杂度">五、KMP算法的时间复杂度</h4>
-<ul>
-<li><strong>构造 next 数组</strong>：<code>O(m)</code>，<code>m</code> 是模式串的长度。</li>
-<li><strong>匹配过程</strong>：<code>O(n)</code>，<code>n</code> 是文本串的长度。</li>
-<li><strong>总时间复杂度</strong>：<code>O(m + n)</code>。</li>
-</ul>
-<p>KMP算法通过利用部分匹配表，在匹配失败时避免回退，有效地提高了匹配效率，是字符串匹配领域中一个重要的算法。</p>
-<h4 class="atx" id="六、总结">六、总结</h4>
-<ul>
-<li><strong>next 数组的作用</strong>：next 数组帮助我们在匹配失败时快速跳转，而不是回溯到开头。</li>
-<li><strong>如何使用</strong>：在匹配时，当遇到不匹配的情况，根据 <code>next</code> 数组跳转，避免从头开始匹配，减少重复计算。</li>
-<li><strong>KMP的优势</strong>：它将模式串的预处理和实际的匹配过程分离，使得算法可以在线性时间内完成匹配。</li>
-</ul>
-<p>通过理解 KMP 算法的图解，你可以深入了解如何在文本中高效地找到模式串的位置。</p>
-<h4 class="atx" id="七、代码">七、代码</h4>
-<pre><code class="fenced-code-block language-c"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>
-<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string.h&gt;</span></span>
+<pre><code class="fenced-code-block language-c">def <span class="token function">compute_next</span><span class="token punctuation">(</span>pattern<span class="token punctuation">)</span><span class="token operator">:</span>
+    <span class="token string">""</span>"
+    计算模式串的next数组
+    <span class="token string">""</span>"
+    m <span class="token operator">=</span> <span class="token function">len</span><span class="token punctuation">(</span>pattern<span class="token punctuation">)</span>
+    next <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">*</span> m  # 初始化next数组，初值为<span class="token operator">-</span><span class="token number">1</span>
+    j <span class="token operator">=</span> <span class="token number">0</span>  # j指向当前前缀的末尾
+    k <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">1</span>  # k指向当前可能的相同前后缀的开头
 
-<span class="token comment">// 构建部分匹配表（next 数组）</span>
-<span class="token keyword">void</span> <span class="token function">computeNextArray</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pattern<span class="token punctuation">,</span> <span class="token keyword">int</span> <span class="token operator">*</span>next<span class="token punctuation">,</span> <span class="token keyword">int</span> m<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">int</span> length <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>  <span class="token comment">// 最长相等前后缀的长度</span>
-    next<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>     <span class="token comment">// next[0] 总是 0</span>
+    <span class="token keyword">while</span> j <span class="token operator">&lt;</span> m <span class="token operator">-</span> <span class="token number">1</span><span class="token operator">:</span>  # 因为 j <span class="token operator">&lt;</span> m<span class="token operator">-</span><span class="token number">1</span>，所以当j <span class="token operator">==</span> m<span class="token operator">-</span><span class="token number">1</span>时，终止
+        <span class="token keyword">if</span> k <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span> or pattern<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">==</span> pattern<span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token operator">:</span>
+            j <span class="token operator">+=</span> <span class="token number">1</span>
+            k <span class="token operator">+=</span> <span class="token number">1</span>
+            next<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">=</span> k  # 更新next数组
+        <span class="token keyword">else</span><span class="token operator">:</span>
+            k <span class="token operator">=</span> next<span class="token punctuation">[</span>k<span class="token punctuation">]</span>  # 尝试前一个最长的相同前后缀
+    <span class="token keyword">return</span> next
 
-    <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
-    <span class="token keyword">while</span> <span class="token punctuation">(</span>i <span class="token operator">&lt;</span> m<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>pattern<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> pattern<span class="token punctuation">[</span>length<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            length<span class="token operator">++</span><span class="token punctuation">;</span>
-            next<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> length<span class="token punctuation">;</span>
-            i<span class="token operator">++</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span>length <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                length <span class="token operator">=</span> next<span class="token punctuation">[</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-                next<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
-                i<span class="token operator">++</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
+
+def <span class="token function">KMP</span><span class="token punctuation">(</span>text<span class="token punctuation">,</span> pattern<span class="token punctuation">)</span><span class="token operator">:</span>
+    <span class="token string">""</span>"
+    KMP 字符串匹配算法
+    <span class="token string">""</span>"
+    n <span class="token operator">=</span> <span class="token function">len</span><span class="token punctuation">(</span>text<span class="token punctuation">)</span>
+    m <span class="token operator">=</span> <span class="token function">len</span><span class="token punctuation">(</span>pattern<span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> m <span class="token operator">==</span> <span class="token number">0</span><span class="token operator">:</span>
+        <span class="token keyword">return</span> <span class="token number">0</span>  # 空模式串可以直接匹配
+
+    next <span class="token operator">=</span> <span class="token function">compute_next</span><span class="token punctuation">(</span>pattern<span class="token punctuation">)</span>  # 计算模式串的next数组
+
+    i <span class="token operator">=</span> <span class="token number">0</span>  # text中的索引
+    j <span class="token operator">=</span> <span class="token number">0</span>  # pattern中的索引
+
+    <span class="token keyword">while</span> i <span class="token operator">&lt;</span> n<span class="token operator">:</span>
+        <span class="token keyword">if</span> j <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span> or text<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> pattern<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token operator">:</span>
+            i <span class="token operator">+=</span> <span class="token number">1</span>
+            j <span class="token operator">+=</span> <span class="token number">1</span>
+        <span class="token keyword">else</span><span class="token operator">:</span>
+            j <span class="token operator">=</span> next<span class="token punctuation">[</span>j<span class="token punctuation">]</span>
+
+        <span class="token keyword">if</span> j <span class="token operator">==</span> m<span class="token operator">:</span>  # 找到匹配
+            <span class="token keyword">return</span> i <span class="token operator">-</span> j  # 返回匹配的起始位置
+
+    <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span>  # 没有匹配
+
+
+# 测试
+text <span class="token operator">=</span> <span class="token string">"ababcabcacbab"</span>
+pattern <span class="token operator">=</span> <span class="token string">"abcac"</span>
+result <span class="token operator">=</span> <span class="token function">KMP</span><span class="token punctuation">(</span>text<span class="token punctuation">,</span> pattern<span class="token punctuation">)</span>
+<span class="token function">print</span><span class="token punctuation">(</span>f<span class="token string">"Pattern found at index: {result}"</span><span class="token punctuation">)</span>
+</code></pre>
+<h1 class="atx" id="数据结构第七节ch6-trees-树">数据结构第七节——CH6 Trees 树</h1>
+<ul>
+<li><p>Definitions and Terminology 术语和定义</p>
+</li>
+<li><p>Implementation of Trees 树的表示</p>
+</li>
+<li><p>Binary Trees 二叉树</p>
+</li>
+<li><p>Tree traversals 树的遍历</p>
+</li>
+<li><p>Threaded Binary Tree 线索二叉树</p>
+</li>
+<li><p>The search Tree ADT-Binary Search Trees 二叉搜索树</p>
+</li>
+<li><p>AVL Trees 平衡二叉树</p>
+</li>
+<li><p>Forest 森林</p>
+</li>
+<li><p>Huffman Tree &nbsp;哈夫曼树/最优二叉树</p>
+</li>
+</ul>
+<h2 class="atx" id="definitions-and-terminology">Definitions and Terminology</h2>
+<h3 class="atx" id="definition-定义">Definition 定义</h3>
+<ul>
+<li><p>A tree is a collection of nodes.&nbsp; The collection can be empty; otherwise, a tree consists of<br>树是节点的集合。该集合可以为空; 否则，树由</p>
+<ul>
+<li><p>a distinguished node r,called the root;<br>一个可分辨的节点 r，称为根;</p>
+</li>
+<li><p>and zero or more nonempty (sub) trees <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.8778em;vertical-align:-0.1944em;" class="strut"></span><span class="mord"><span style="margin-right:0.13889em;" class="mord mathnormal">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord">...</span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord"><span style="margin-right:0.13889em;" class="mord mathnormal">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3361em;" class="vlist"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span style="margin-right:0.03148em;" class="mord mathnormal mtight">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>,each of whose roots are connected by a directed edge from r.<br>和零个或多个非空(子)树 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.8778em;vertical-align:-0.1944em;" class="strut"></span><span class="mord"><span style="margin-right:0.13889em;" class="mord mathnormal">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord">...</span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord"><span style="margin-right:0.13889em;" class="mord mathnormal">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3361em;" class="vlist"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span style="margin-right:0.03148em;" class="mord mathnormal mtight">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>，每个树的根由 r 的有向边连接。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 class="atx" id="terminology-术语">Terminology 术语</h3>
+<ul>
+<li><p>degree of a node = number of subtrees of the node.&nbsp; For example, degree(A) = 3, degree(F) = 0.<br>节点的度 = 节点的子树的数目。例如，度(A) = 3，度(F) = 0。</p>
+</li>
+<li><p>degree of a tree = <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1.0361em;vertical-align:-0.2861em;" class="strut"></span><span class="mop"><span class="mop">max</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3361em;" class="vlist"><span style="top:-2.55em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">e</span><span class="mrel mtight">∈</span><span style="margin-right:0.10764em;" class="mord mathnormal mtight">f</span><span class="mord mathnormal mtight">ree</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.2861em;" class="vlist"><span></span></span></span></span></span></span><span class="mopen">{</span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span style="margin-right:0.03588em;" class="mord mathnormal">g</span><span class="mord mathnormal">ree</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span class="mclose">)}</span></span></span></span><br>树的度 = <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span class="mord mathnormal">ma</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3283em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord cjk_fallback mtight">自由中的节点</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span class="mopen">{</span><span class="mord cjk_fallback">度</span><span class="mopen">(</span><span class="mord cjk_fallback">节点</span><span class="mclose">)}</span></span></span></span></p>
+</li>
+<li><p>parent = a node that has subtrees.<br>双亲 = 具有子树的节点</p>
+</li>
+<li><p>children = the roots of the subtrees of a parent.<br>孩子 = 双亲子树的根</p>
+</li>
+<li><p>siblings = children of the same parent.<br>兄弟 = 双亲的子女</p>
+</li>
+<li><p>leaf ( terminal node ) 叶(终端节点) = a node with degree 0 (no children).</p>
+</li>
+<li><p>path from <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span> to <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3361em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span style="margin-right:0.03148em;" class="mord mathnormal mtight">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>  从 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>到 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3361em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span style="margin-right:0.03148em;" class="mord mathnormal mtight">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>的路径= a (unique) sequence of nodes <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.625em;vertical-align:-0.1944em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="minner">…</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3361em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span style="margin-right:0.03148em;" class="mord mathnormal mtight">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span> &nbsp;such that ni is the parent of <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.6389em;vertical-align:-0.2083em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3117em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.2083em;" class="vlist"><span></span></span></span></span></span></span></span></span></span> for <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.6835em;vertical-align:-0.0391em;" class="strut"></span><span class="mord">1</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">&lt;</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.6986em;vertical-align:-0.0391em;" class="strut"></span><span class="mord mathnormal">i</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">&lt;</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.6944em;" class="strut"></span><span style="margin-right:0.03148em;" class="mord mathnormal">k</span></span></span></span>.</p>
+</li>
+<li><p>length of path  路径长度= number of edges on the path.</p>
+</li>
+<li><p>depth of <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3117em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span> 深度 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3117em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>  = length of the unique path from the root to <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3117em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>.&nbsp;&nbsp; Depth(root) = 0.</p>
+</li>
+<li><p>height of <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3117em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span> 高度 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3117em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>= length of the longest path from <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3117em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span> to aleaf.&nbsp; Height(leaf) = 0, and height(D) =2.</p>
+</li>
+<li><p>height (depth) of a tree  树的高度(深度) = height(root)= depth(deepest leaf).</p>
+</li>
+<li><p>ancestors of a node  节点的祖先 = all the nodes along the path from the node up to the root.</p>
+</li>
+<li><p>descendants of a node  节点的后代 = all the nodes in its subtrees.</p>
+</li>
+</ul>
+<hr>
+<p><img alt="5bc777fc-4346-4e07-9212-7f8ab5d8c9ea" src="./images/5bc777fc-4346-4e07-9212-7f8ab5d8c9ea.png"></p>
+<ul>
+<li><p>考虑结点K。根A到结点K的唯一路径上的任意结点,称为结点K的<strong>祖先</strong>。如结点B是结点K的祖先,而结点K是结点B的<strong>子孙</strong>。路径上最接近结点K的结点E称为K的<strong>双亲</strong>,而K为结点E的<strong>孩子</strong>。根A是树中唯一没有双亲的结点。有相同双亲的结点称为<strong>兄弟</strong>,如结点K和结点L有相同的双亲E,即K和L为兄弟。</p>
+</li>
+<li><p>树中一个结点的孩子个数称为该<strong>结点的度</strong>,树中结点的最大度数称为<strong>树的度</strong>。如结点B的度为2,结点D的度为3,树的度为3。</p>
+</li>
+<li><p>度大于0的结点称为<strong>分支结点</strong>(又称非终端结点);度为0(没有子女结点)的结点称为<strong>叶子结点</strong>(又称终端结点)。在分支结点中,每个结点的分支数就是该结点的度。</p>
+</li>
+<li><p>结点的深度、高度和层次。</p>
+<ul>
+<li><p><strong>结点的层次</strong>从树根开始定义,根结点为第1层,它的子结点为第2层,以此类推。双亲在同一层的结点互为<strong>堂兄弟</strong>,图中结点G与E,F,H,I,J互为堂兄弟。</p>
+</li>
+<li><p><strong>结点的深度</strong>是从根结点开始自顶向下逐层累加的。</p>
+</li>
+<li><p><strong>结点的高度</strong>是从叶结点开始自底向上逐层累加的。</p>
+</li>
+<li><p><strong>树的高度(或深度)</strong> 是树中结点的最大层数。图中树的高度为4。</p>
+</li>
+</ul>
+</li>
+<li><p>有序树和无序树。树中结点的各子树从左到右是有次序的,不能互换,称该树为<strong>有序树</strong>,否则称为<strong>无序树</strong>。假设图为有序树,若将子结点位置互换,则变成一棵不同的树。</p>
+</li>
+<li><p>路径和路径长度。树中两个结点之间的<strong>路径</strong>是由这两个结点之间所经过的结点序列构成的,而<strong>路径长度</strong>是路径上所经过的边的个数。
+注意:由于树中的分支是有向的,即从双亲指向孩子,所以树中的路径是从上向下的,同一双亲的两个孩子之间不存在路径。
+森林。<strong>森林</strong>是m (m≥0)棵互不相交的树的集合。森林的概念与树的概念十分相近，因为只要把树的根结点删去就成了森林。反之，只要给m棵独立的树加上一个结点，并把这m棵树作为该结点的子树，则森林就变成了树。</p>
+</li>
+</ul>
+<hr>
+<h3 class="atx" id="adt-tree">ADT Tree</h3>
+<ul>
+<li><p>ADT Tree&nbsp; ={ D,R }    </p>
+<ul>
+<li><p>D (Data objects ):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span class="mopen">{</span><span style="margin-right:0.02778em;" class="mord mathnormal">D</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">=</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3117em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3117em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">∈</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span style="margin-right:0.01968em;" class="mord mathnormal">El</span><span class="mord mathnormal">e</span><span class="mord mathnormal">m</span><span class="mord mathnormal">se</span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mopen">(</span><span class="mord mathnormal">i</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">=</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.8389em;vertical-align:-0.1944em;" class="strut"></span><span class="mord">1</span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord">2</span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="minner">…</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord mathnormal">n</span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord mathnormal">n</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≥</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span class="mord">0</span><span class="mclose">)}</span></span></span></span>  </p>
+</li>
+<li><p>R (Relationships of Data Elements):<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { Recursive Definition of a tree }</p>
+</li>
+</ul>
+</li>
+<li><p>Basic Operations:  </p>
+<ul>
+<li><p>initiate</p>
+</li>
+<li><p>Root</p>
+</li>
+<li><p>Parent</p>
+</li>
+<li><p>Child</p>
+</li>
+<li><p>Create Tree</p>
+</li>
+<li><p>Clear</p>
+</li>
+<li><p>Insert_Child</p>
+</li>
+<li><p>Del_Child</p>
+</li>
+<li><p>Traverse</p>
+</li>
+<li><p>Right_Sibling</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="atx" id="implementation-of-trees-树的实现">Implementation of Trees 树的实现</h2>
+<h3 class="atx" id="list-representation-链表表示">List Representation 链表表示</h3>
+<ul>
+<li><p>( A ( B ( E ( K, L ), F ), C ( G ), D ( H( M ), I, J ) ) )</p>
+</li>
+<li><p><img alt="c40f1f16-97aa-4c5d-9f6f-dd992d12bd6b" src="./images/c40f1f16-97aa-4c5d-9f6f-dd992d12bd6b.png"></p>
+<ul>
+<li><p>So the size of each node depends on the number of branches.</p>
+</li>
+<li><p>Node storage takes the maximum size, That’s not good.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 class="atx" id="firstchild-nextsibling-representation-左孩子右兄弟表示法">FirstChild-NextSibling Representation “左孩子右兄弟”表示法</h4>
+<p><img alt="9e9013eb-d2ed-4a65-b8c7-5a47b089b2aa" src="./images/9e9013eb-d2ed-4a65-b8c7-5a47b089b2aa.png"></p>
+<p><img alt="d4395505-19a4-44cb-8087-e4148ab85673" src="./images/d4395505-19a4-44cb-8087-e4148ab85673.png"></p>
+<p>Note:&nbsp; The representation is not unique since the children in a tree can be of any order.<br>注意: 表示并不唯一，因为树中的子元素可以是任意顺序的。</p>
+<h2 class="atx" id="binary-trees-二叉树">Binary Trees 二叉树</h2>
+<ul>
+<li>【Definition】A binary tree is a tree in which no node can have morethan two children.<br>[定义]二叉树是一种树，其中任何节点都不能有两个以上的子节点。</li>
+</ul>
+<p><img alt="bda9aba7-1add-4e0c-ab42-05ad79f0cc05" src="./images/bda9aba7-1add-4e0c-ab42-05ad79f0cc05.png"></p>
+<h3 class="atx" id="special-binary-trees-特殊二叉树">Special Binary Trees 特殊二叉树</h3>
+<ul>
+<li><p>Full binary tree 满二叉树</p>
+<ul>
+<li><p>Containsthe maximum number of nodes in all levels<br>包含所有级别中的最大节点数</p>
+</li>
+<li><p><img alt="e541e1e3-6aab-4639-855c-2ed5d5a02332" src="./images/e541e1e3-6aab-4639-855c-2ed5d5a02332.png"></p>
+</li>
+</ul>
+</li>
+<li><p>Complete binary tree 完全二叉树</p>
+<ul>
+<li><p>All its levels except possibly the last level have the maximum number of nodes andall nodes at the last level appear as far left as possible.<br>它的所有级别，除了最后一个级别可能有最大的节点数和所有节点在最后一个级别出现尽可能远的左边。</p>
+</li>
+<li><p><img alt="89889e71-1156-4fa1-b696-d1098887b7e9" src="./images/89889e71-1156-4fa1-b696-d1098887b7e9.png"></p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 class="atx" id="properties-性质">Properties 性质</h3>
+<ul>
+<li><p>The maximum number of nodes on level i of a binary tree is <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1.0191em;vertical-align:-0.1944em;" class="strut"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span style="height:0.8247em;" class="vlist"><span style="top:-3.063em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord mathnormal">i</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≥</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">0</span></span></span></span> .<br>二叉树的级别 i 上的最大节点数是 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.9606em;vertical-align:-0.136em;" class="strut"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span style="height:0.8247em;" class="vlist"><span style="top:-3.063em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span><span class="mord cjk_fallback">，</span><span class="mord mathnormal">i</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≥</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">0</span></span></span></span>。</p>
+</li>
+<li><p>The maximum number of nodes in a binary tree of depth k is <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.9324em;vertical-align:-0.0833em;" class="strut"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span style="height:0.8491em;" class="vlist"><span style="top:-3.063em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span style="margin-right:0.03148em;" class="mord mathnormal mtight">k</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">−</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.8889em;vertical-align:-0.1944em;" class="strut"></span><span class="mord">1</span><span class="mpunct">,</span><span style="margin-right:0.1667em;" class="mspace"></span><span style="margin-right:0.03148em;" class="mord mathnormal">k</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≥</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">0</span></span></span></span>.<br>深度为 k 的二叉树的最大节点数为 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.9324em;vertical-align:-0.0833em;" class="strut"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span style="height:0.8491em;" class="vlist"><span style="top:-3.063em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span style="margin-right:0.03148em;" class="mord mathnormal mtight">k</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">−</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.8304em;vertical-align:-0.136em;" class="strut"></span><span class="mord">1</span><span class="mord cjk_fallback">，</span><span style="margin-right:0.03148em;" class="mord mathnormal">k</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≥</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">0</span></span></span></span>。</p>
+</li>
+<li><p>For any nonempty binary tree, T, if <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span> is the number of leaf nodes and <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span> is the number of nodes of degree 2, then <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">=</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.7333em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">1</span></span></span></span>.<br>对于任何非空二叉树 T，如果 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>是叶节点数，<span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>是度2的节点数，那么 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">=</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.7333em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">1</span></span></span></span>。</p>
+<ul>
+<li><p>node = <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.7333em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.7333em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span></span></span></span>; </p>
+</li>
+<li><p>edge =  node -1</p>
+</li>
+<li><p>edge = <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.7333em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.7944em;vertical-align:-0.15em;" class="strut"></span><span class="mord">2</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≥</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.5806em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">=</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.7333em;vertical-align:-0.15em;" class="strut"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">1</span></span></span></span> </p>
+</li>
+</ul>
+</li>
+<li><p>The height of a complete binarytree with n nodes is &nbsp;<span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span class="minner"><span style="top:0em;" class="mopen delimcenter">⌊</span><span style="margin-right:0.01968em;" class="mord mathnormal">l</span><span class="mord mathnormal">o</span><span class="mord"><span style="margin-right:0.03588em;" class="mord mathnormal">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span class="mord mathnormal">n</span><span style="top:0em;" class="mclose delimcenter">⌋</span></span></span></span></span> , <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span class="minner"><span style="top:0em;" class="mopen delimcenter">⌊</span><span style="margin-right:0.07847em;" class="mord mathnormal">X</span><span style="top:0em;" class="mclose delimcenter">⌋</span></span></span></span></span> is the largest integer less then <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.6833em;" class="strut"></span><span style="margin-right:0.07847em;" class="mord mathnormal">X</span></span></span></span>.<br> 具有 n 个节点的完整二叉树的高度是 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span class="minner"><span style="top:0em;" class="mopen delimcenter">⌊</span><span style="margin-right:0.01968em;" class="mord mathnormal">l</span><span class="mord mathnormal">o</span><span class="mord"><span style="margin-right:0.03588em;" class="mord mathnormal">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.3011em;" class="vlist"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.15em;" class="vlist"><span></span></span></span></span></span></span><span class="mord mathnormal">n</span><span style="top:0em;" class="mclose delimcenter">⌋</span></span></span></span></span>，<span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1em;vertical-align:-0.25em;" class="strut"></span><span class="minner"><span style="top:0em;" class="mopen delimcenter">⌊</span><span style="margin-right:0.07847em;" class="mord mathnormal">X</span><span style="top:0em;" class="mclose delimcenter">⌋</span></span></span></span></span>是小于 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.6833em;" class="strut"></span><span style="margin-right:0.07847em;" class="mord mathnormal">X</span></span></span></span>的最大整数（向下取整）。</p>
+</li>
+<li><p>5.&nbsp;&nbsp; If a complete binary tree with n nodes is represented sequentially, then for any node with index i,<span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.7804em;vertical-align:-0.136em;" class="strut"></span><span class="mord">1</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≤</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.7955em;vertical-align:-0.136em;" class="strut"></span><span class="mord mathnormal">i</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≤</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.4306em;" class="strut"></span><span class="mord mathnormal">n</span></span></span></span>,we have</p>
+<ul>
+<li><p>parent(i) is at<span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:1.2057em;vertical-align:-0.35em;" class="strut"></span><span class="minner"><span style="top:0em;" class="mopen delimcenter"><span class="delimsizing size1">⌊</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span style="height:0.8557em;" class="vlist"><span style="top:-2.655em;"><span style="height:3em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span style="height:3em;" class="pstrut"></span><span style="border-bottom-width:0.04em;" class="frac-line"></span></span><span style="top:-3.394em;"><span style="height:3em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span style="height:0.345em;" class="vlist"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span style="top:0em;" class="mclose delimcenter"><span class="delimsizing size1">⌋</span></span></span><span style="margin-right:0.1667em;" class="mspace"></span><span class="mord mathnormal">i</span><span style="margin-right:0.10764em;" class="mord mathnormal">f</span><span class="mspace">&nbsp;</span><span class="mord mathnormal">i</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span class="rlap"><span style="height:0.8889em;vertical-align:-0.1944em;" class="strut"></span><span class="inner"><span class="mord"><span class="mrel"></span></span></span><span class="fix"></span></span></span></span></span><span class="mrel">=</span></span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">1</span></span></span></span>.<br>&nbsp;If i = 1, i is at the root and has no parent.</p>
+</li>
+<li><p>LeftChild(i) is at <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.8889em;vertical-align:-0.1944em;" class="strut"></span><span class="mord">2</span><span class="mord mathnormal">i</span><span class="mspace">&nbsp;</span><span class="mord mathnormal">i</span><span style="margin-right:0.10764em;" class="mord mathnormal">f</span><span class="mspace">&nbsp;</span><span class="mord">2</span><span class="mord mathnormal">i</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≤</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.4306em;" class="strut"></span><span class="mord mathnormal">n</span></span></span></span>.<br>&nbsp;If <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.6986em;vertical-align:-0.0391em;" class="strut"></span><span class="mord">2</span><span class="mord mathnormal">i</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">&gt;</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.4306em;" class="strut"></span><span class="mord mathnormal">n</span></span></span></span> ,then i has no left child.</p>
+</li>
+<li><p>RightChild(i) is at <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.7429em;vertical-align:-0.0833em;" class="strut"></span><span class="mord">2</span><span class="mord mathnormal">i</span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">1</span></span></span></span> if <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.7429em;vertical-align:-0.0833em;" class="strut"></span><span class="mord">2</span><span class="mord mathnormal">i</span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.7804em;vertical-align:-0.136em;" class="strut"></span><span class="mord">1</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">≤</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.4306em;" class="strut"></span><span class="mord mathnormal">n</span></span></span></span>.<br>&nbsp;If <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.7429em;vertical-align:-0.0833em;" class="strut"></span><span class="mord">2</span><span class="mord mathnormal">i</span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.6835em;vertical-align:-0.0391em;" class="strut"></span><span class="mord">1</span><span style="margin-right:0.2778em;" class="mspace"></span><span class="mrel">&gt;</span><span style="margin-right:0.2778em;" class="mspace"></span></span><span class="base"><span style="height:0.4306em;" class="strut"></span><span class="mord mathnormal">n</span></span></span></span> ,then i has no right child</p>
+</li>
+<li><p><img alt="656b074b-06d4-4832-ae6b-9edbe8e89451" src="./images/656b074b-06d4-4832-ae6b-9edbe8e89451.png"></p>
+</li>
+<li><p><img alt="981b2023-3df2-4548-8f4a-6f04bc351edd" src="./images/981b2023-3df2-4548-8f4a-6f04bc351edd.png"></p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 class="atx" id="array-implementation-of-binarytree-二叉树的数组实现">Array implementation of Binarytree 二叉树的数组实现</h3>
+<p><img alt="0a4f1b4b-f488-4e5c-b6c1-f2c63e34f319" src="./images/0a4f1b4b-f488-4e5c-b6c1-f2c63e34f319.png"></p>
+<ul>
+<li><p>Disadvantages</p>
+<ul>
+<li><p>Wastespaces: in the worst case, a skewed tree of depth k requires <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.9324em;vertical-align:-0.0833em;" class="strut"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span style="height:0.8491em;" class="vlist"><span style="top:-3.063em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span style="margin-right:0.03148em;" class="mord mathnormal mtight">k</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">1</span></span></span></span> spaces. Of these, only <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.7778em;vertical-align:-0.0833em;" class="strut"></span><span style="margin-right:0.03148em;" class="mord mathnormal">k</span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">1</span></span></span></span> spaces will be occupied<br>浪费空间: 在最坏的情况下，一个深度为 k 的倾斜树需要 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.9324em;vertical-align:-0.0833em;" class="strut"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span style="height:0.8491em;" class="vlist"><span style="top:-3.063em;margin-right:0.05em;"><span style="height:2.7em;" class="pstrut"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span style="margin-right:0.03148em;" class="mord mathnormal mtight">k</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">1</span></span></span></span>空间。其中，只有 <span class="katex"><span class="katex-mathml"></span><span aria-hidden="true" class="katex-html"><span class="base"><span style="height:0.7778em;vertical-align:-0.0833em;" class="strut"></span><span style="margin-right:0.03148em;" class="mord mathnormal">k</span><span style="margin-right:0.2222em;" class="mspace"></span><span class="mbin">+</span><span style="margin-right:0.2222em;" class="mspace"></span></span><span class="base"><span style="height:0.6444em;" class="strut"></span><span class="mord">1</span></span></span></span>空间将被占用</p>
+</li>
+<li><p>Insertionor deletion of nodes from the middle of a tree requires the movementof&nbsp; potentially many nodes toreflect the change in the level of these nodes<br>从树的中间插入或删除节点需要潜在的许多节点的移动来反映这些节点级别的变化</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 class="atx" id="binary-linked-list-implementation-链表实现">Binary linked list implementation 链表实现</h3>
+<p><img alt="31447f92-912b-4e14-ab29-086f41f81790" src="./images/31447f92-912b-4e14-ab29-086f41f81790.png"></p>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">typedef</span> <span class="token keyword">struct</span> <span class="token class-name">node</span>   <span class="token punctuation">{</span>
+    elemtype data<span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> <span class="token class-name">node</span> <span class="token operator">*</span>lchild<span class="token punctuation">,</span> <span class="token operator">*</span>rchild<span class="token punctuation">;</span>
+<span class="token punctuation">}</span> node<span class="token punctuation">,</span> <span class="token operator">*</span>bitptr<span class="token punctuation">;</span>
+</code></pre>
+<h3 class="atx" id="binary-tree-applications---expression-trees-syntax-trees-二叉树应用程序表达式树语法树">Binary tree applications-- Expression Trees (syntax trees) 二叉树应用程序——表达式树(语法树)</h3>
+<p><img alt="68327ad4-4e73-44d3-82ef-a2dc6c1bb099" src="./images/68327ad4-4e73-44d3-82ef-a2dc6c1bb099.png"></p>
+<h2 class="atx" id="tree-traversal-树的遍历">Tree traversal 树的遍历</h2>
+<ul>
+<li><p>preorder 先序遍历 DLR  先访问根结点， 然后是左子树， 再然后是右子树。</p>
+</li>
+<li><p>inorder 中序遍历 LDR 先访问的是左子树， 然后是根， 再然后是右子树。</p>
+</li>
+<li><p>postorder 后序遍历 LRD 先访问的是左子树， 然后是右子树， 再然后是根。</p>
+</li>
+</ul>
+<p>D:Root; &nbsp;L: Left subtree;&nbsp; R: Right subtree （递归调用）</p>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">void</span> <span class="token function">Preorder</span> <span class="token punctuation">(</span> <span class="token keyword">struct</span>  <span class="token class-name">node</span> <span class="token operator">*</span>t <span class="token punctuation">)</span>  <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span> t <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">visit</span> <span class="token punctuation">(</span> t <span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">Preorder</span> <span class="token punctuation">(</span>t<span class="token operator">-&gt;</span>lchild<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">Preorder</span> <span class="token punctuation">(</span>t<span class="token operator">-&gt;</span>rchild<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-
-<span class="token comment">// KMP 字符串匹配算法</span>
-<span class="token keyword">void</span> <span class="token function">KMP</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>text<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pattern<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">int</span> n <span class="token operator">=</span> <span class="token function">strlen</span><span class="token punctuation">(</span>text<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">int</span> m <span class="token operator">=</span> <span class="token function">strlen</span><span class="token punctuation">(</span>pattern<span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    <span class="token comment">// 构造 next 数组</span>
-    <span class="token keyword">int</span> next<span class="token punctuation">[</span>m<span class="token punctuation">]</span><span class="token punctuation">;</span>
-    <span class="token function">computeNextArray</span><span class="token punctuation">(</span>pattern<span class="token punctuation">,</span> next<span class="token punctuation">,</span> m<span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>  <span class="token comment">// text 的索引</span>
-    <span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>  <span class="token comment">// pattern 的索引</span>
-    <span class="token keyword">while</span> <span class="token punctuation">(</span>i <span class="token operator">&lt;</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>pattern<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">==</span> text<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            i<span class="token operator">++</span><span class="token punctuation">;</span>
-            j<span class="token operator">++</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>j <span class="token operator">==</span> m<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Pattern found at index %d\n"</span><span class="token punctuation">,</span> i <span class="token operator">-</span> j<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            j <span class="token operator">=</span> next<span class="token punctuation">[</span>j <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>i <span class="token operator">&lt;</span> n <span class="token operator">&amp;&amp;</span> pattern<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">!=</span> text<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span>j <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                j <span class="token operator">=</span> next<span class="token punctuation">[</span>j <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-                i<span class="token operator">++</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
+</code></pre>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">void</span>  <span class="token function">Inorder</span> <span class="token punctuation">(</span> bitptr t <span class="token punctuation">)</span>  <span class="token punctuation">{</span>
+    <span class="token keyword">if</span>   <span class="token punctuation">(</span> t <span class="token punctuation">)</span>   <span class="token punctuation">{</span>
+        <span class="token function">Inorder</span> <span class="token punctuation">(</span>t<span class="token operator">-&gt;</span>lchild<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">visit</span> <span class="token punctuation">(</span> t <span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">Inorder</span> <span class="token punctuation">(</span>t<span class="token operator">-&gt;</span>rchild<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">void</span>  <span class="token function">Postorder</span> <span class="token punctuation">(</span> <span class="token keyword">struct</span>  <span class="token class-name">node</span> <span class="token operator">*</span>t <span class="token punctuation">)</span>  <span class="token punctuation">{</span>
+    <span class="token keyword">if</span>   <span class="token punctuation">(</span> t <span class="token punctuation">)</span>   <span class="token punctuation">{</span>
+        <span class="token function">Postorder</span> <span class="token punctuation">(</span>t<span class="token operator">-&gt;</span>lchild<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">Postorder</span> <span class="token punctuation">(</span>t<span class="token operator">-&gt;</span>rchild<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">visit</span> <span class="token punctuation">(</span> t <span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-
-<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>text <span class="token operator">=</span> <span class="token string">"ABC ABCDAB ABCDABCDABDE"</span><span class="token punctuation">;</span>
-    <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pattern <span class="token operator">=</span> <span class="token string">"ABCDABD"</span><span class="token punctuation">;</span>
-
-    <span class="token function">KMP</span><span class="token punctuation">(</span>text<span class="token punctuation">,</span> pattern<span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 class="atx" id="non-recursive-preorder-traversal-非递归预序遍历">Non-recursive preorder traversal 非递归预序遍历</h3>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">void</span>  <span class="token function">Preorder</span> <span class="token punctuation">(</span><span class="token keyword">struct</span>  <span class="token class-name">node</span>  <span class="token operator">*</span> t<span class="token punctuation">)</span>   <span class="token punctuation">{</span>             
+    <span class="token function">Inistack</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+     <span class="token keyword">if</span>  <span class="token punctuation">(</span> t <span class="token punctuation">)</span>  <span class="token function">Push</span><span class="token punctuation">(</span> s<span class="token punctuation">,</span>  t <span class="token punctuation">)</span><span class="token punctuation">;</span>
+     <span class="token keyword">while</span>  <span class="token punctuation">(</span> <span class="token operator">!</span> <span class="token function">Empty</span><span class="token punctuation">(</span> s <span class="token punctuation">)</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+           <span class="token function">Pop</span><span class="token punctuation">(</span> s<span class="token punctuation">,</span>  t <span class="token punctuation">)</span><span class="token punctuation">;</span>
+           <span class="token function">visit</span><span class="token punctuation">(</span> t <span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token keyword">if</span>  <span class="token punctuation">(</span> t<span class="token operator">-&gt;</span>rchild <span class="token punctuation">)</span>  <span class="token function">Push</span><span class="token punctuation">(</span> s<span class="token punctuation">,</span> t<span class="token operator">-&gt;</span>rchild <span class="token punctuation">)</span><span class="token punctuation">;</span>
+       <span class="token keyword">if</span>  <span class="token punctuation">(</span> t<span class="token operator">-&gt;</span>lchild <span class="token punctuation">)</span>  <span class="token function">Push</span><span class="token punctuation">(</span> s<span class="token punctuation">,</span> t<span class="token operator">-&gt;</span>lchild <span class="token punctuation">)</span><span class="token punctuation">;</span>
+     <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<pre><code class="fenced-code-block language-c"><span class="token keyword">void</span>  <span class="token function">Postorder</span> <span class="token punctuation">(</span><span class="token keyword">struct</span>  <span class="token class-name">node</span>  <span class="token operator">*</span> t<span class="token punctuation">)</span>   <span class="token punctuation">{</span>             
+    <span class="token function">Inistack</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token keyword">while</span>  <span class="token punctuation">(</span> t <span class="token operator">||</span>  <span class="token operator">!</span> <span class="token function">Empty</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token punctuation">{</span>
+            <span class="token keyword">while</span>  <span class="token punctuation">(</span> t <span class="token punctuation">)</span>  <span class="token punctuation">{</span> <span class="token function">Push</span><span class="token punctuation">(</span> s<span class="token punctuation">,</span> <span class="token punctuation">(</span> t <span class="token punctuation">,</span> ‘L’<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  t<span class="token operator">=</span>t<span class="token operator">-&gt;</span>lchild<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+            tag<span class="token operator">=</span>‘R’<span class="token punctuation">;</span>
+            <span class="token keyword">while</span>  <span class="token punctuation">(</span> <span class="token operator">!</span><span class="token function">Empty</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span>  <span class="token operator">&amp;&amp;</span>  <span class="token punctuation">(</span>tag<span class="token operator">==</span>‘R’<span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token punctuation">{</span>
+                <span class="token punctuation">(</span>t<span class="token punctuation">,</span> tag<span class="token punctuation">)</span><span class="token operator">=</span><span class="token function">Pop</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">if</span>  <span class="token punctuation">(</span>tag<span class="token operator">==</span>‘L’<span class="token punctuation">)</span>  <span class="token punctuation">{</span> <span class="token function">Push</span><span class="token punctuation">(</span> s<span class="token punctuation">,</span> <span class="token punctuation">(</span>t<span class="token punctuation">,</span> ‘R’<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   t<span class="token operator">=</span>t<span class="token operator">-&gt;</span>rchild<span class="token punctuation">;</span>  <span class="token punctuation">}</span>
+                <span class="token keyword">else</span>  <span class="token punctuation">{</span>  <span class="token function">visit</span><span class="token punctuation">(</span> t <span class="token punctuation">)</span><span class="token punctuation">;</span>  t<span class="token operator">=</span><span class="token constant">NULL</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </article>
