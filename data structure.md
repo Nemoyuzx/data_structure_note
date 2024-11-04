@@ -1880,15 +1880,959 @@ void  Preorder (struct  node  * t)   {
 ```c
 void  Postorder (struct  node  * t)   {             
     Inistack(s); 
-        while  ( t ||  ! Empty(s))  {
-            while  ( t )  { Push( s, ( t , ‘L’));  t=t->lchild; }
-            tag=‘R’;
-            while  ( !Empty(s)  &&  (tag==‘R’))  {
-                (t, tag)=Pop(s);
-                if  (tag==‘L’)  { Push( s, (t, ‘R’));   t=t->rchild;  }
-                else  {  visit( t );  t=NULL; }
-            }
-        }
+    while  ( t ||  ! Empty(s))  {
+        while  ( t )  { Push( s, ( t , ‘L’));  t=t->lchild; }
+            tag=‘R’;
+            while  ( !Empty(s)  &&  (tag==‘R’)){
+                (t, tag)=Pop(s);
+                if  (tag==‘L’)  {
+                    Push( s, (t, ‘R’));   
+                    t=t->rchild;  
+                }else{
+                    visit( t );  
+                    t=NULL; 
+                }
+            }
+        }
+    }
+}
+```
+
+### Level-order Traversal 水平顺序遍历(层序遍历)
+
+```c
+void  levelorder ( tree_ptr tree ){
+    enqueue ( tree );
+    while (queue is not empty) {
+        visit ( T = dequeue ( ) );
+        for (each child C of T )
+            enqueue ( C );
+    }
 }
 
 ```
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+// 定义二叉树节点
+typedef struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+} TreeNode;
+
+typedef struct QueueNode {
+    TreeNode *node;
+    struct QueueNode *next;
+} QueueNode;
+
+typedef struct Queue {
+    QueueNode *front;
+    QueueNode *rear;
+} Queue;
+
+// 初始化队列
+Queue* createQueue() {
+    Queue *queue = (Queue *)malloc(sizeof(Queue));
+    queue->front = queue->rear = NULL;
+    return queue;
+}
+
+// 判断队列是否为空
+int isEmpty(Queue *queue) {
+    return queue->front == NULL;
+}
+
+// 入队操作
+void enqueue(Queue *queue, TreeNode *node) {
+    QueueNode *newNode = (QueueNode *)malloc(sizeof(QueueNode));
+    newNode->node = node;
+    newNode->next = NULL;
+    if (queue->rear) {
+        queue->rear->next = newNode;
+    } else {
+        queue->front = newNode;
+    }
+    queue->rear = newNode;
+}
+
+// 出队操作
+TreeNode* dequeue(Queue *queue) {
+    if (isEmpty(queue)) return NULL;
+    QueueNode *temp = queue->front;
+    TreeNode *node = temp->node;
+    queue->front = queue->front->next;
+    if (queue->front == NULL) {
+        queue->rear = NULL;
+    }
+    free(temp);
+    return node;
+}
+
+
+void levelOrderTraversal(TreeNode *root) {
+    if (root == NULL) return;
+
+    Queue *queue = createQueue();
+    enqueue(queue, root);
+
+    while (!isEmpty(queue)) {
+        TreeNode *current = dequeue(queue);
+        printf("%d ", current->val);
+        if (current->left) enqueue(queue, current->left);
+        if (current->right) enqueue(queue, current->right);
+    }
+    printf("\n");
+}
+
+
+TreeNode* createNode(int val) {
+    TreeNode *newNode = (TreeNode *)malloc(sizeof(TreeNode));
+    newNode->val = val;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+int main() {
+    // 创建二叉树
+    TreeNode *root = createNode(1);
+    root->left = createNode(2);
+    root->right = createNode(3);
+    root->left->left = createNode(4);
+    root->left->right = createNode(5);
+    root->right->left = createNode(6);
+    root->right->right = createNode(7);
+
+    printf("层序遍历结果: ");
+    levelOrderTraversal(root);
+
+    return 0;
+}
+
+
+```
+
+![19188f4a-8ec6-4fc2-8a79-e0422f6007a6](./images/19188f4a-8ec6-4fc2-8a79-e0422f6007a6.png)
+
+### 遍历方法对于比较二叉树的可区分性
+
+Using preorder together with inorder (or inorder with postorder) candecide only one binary tree. However, preorder and postorder can’t.
+在二叉树的重构中，**前序遍历**和**中序遍历**组合在一起，或者**中序遍历**和**后序遍历**组合在一起，足以唯一确定一棵二叉树。但是，**前序遍历**和**后序遍历**的组合却无法唯一确定一棵二叉树。
+
+对于树 1：
+
+```
+    1
+   /
+  2
+   \
+    3
+```
+
+对于树 2：
+
+```
+    1
+     \
+      2
+     /
+    3
+```
+
+| 树   | 前序遍历    | 中序遍历    | 后序遍历    |
+| --- | ------- | ------- | ------- |
+| 树 1 | 1, 2, 3 | 2, 3, 1 | 3, 2, 1 |
+| 树 2 | 1, 2, 3 | 1, 3, 2 | 3, 2, 1 |
+
+
+
+
+
+## Threaded Binary Tree 线索二叉树
+
+二叉树的链式表示（即使用指针连接节点的方式）虽然可以灵活地表示树的结构，但也存在一些缺点。以下是其中的一些主要缺点：
+
+##### 1. 空指针过多
+
+在二叉树的链式表示中，每个节点都会有两个指针字段，分别用于指向左子节点和右子节点。然而，在一个拥有 `n` 个节点的二叉树中，实际的有效指针数量往往比指针字段少。根据二叉树的性质，一个 `n` 个节点的二叉树会有 `2n - (n - 1) = n + 1` 个空指针。这些空指针是“浪费”的，因为它们不指向任何有效节点。
+
+##### 2. 解决方案：线程化二叉树
+
+为了充分利用这些空指针，可以将部分空指针字段存储为有效的“线程”（threads），用来指向某些节点的前驱或后继节点。线程化二叉树中的这些“线程”就是额外的指针，可以帮助我们在遍历时快速找到节点的前驱和后继，而无需进行重复的递归或遍历操作。（节点前驱和后驱按照遍历方法产生的前后顺序决定）
+
+##### 3. 线程化的三种方式
+
+根据不同的遍历方式，线程化二叉树可以分为三种类型：
+
+- **先序线程化（Preorder threading）：** 空指针用于指向先序遍历中的前驱或后继节点。
+- **中序线程化（Inorder threading）：** 空指针用于指向中序遍历中的前驱或后继节点。
+- **后序线程化（Postorder threading）：** 空指针用于指向后序遍历中的前驱或后继节点。
+
+![8ac88dd2-3a2e-4c11-817c-e26de6531fb2](./images/8ac88dd2-3a2e-4c11-817c-e26de6531fb2.png)
+
+![cea71385-6367-4fe2-befb-9f63e8ca694f](./images/cea71385-6367-4fe2-befb-9f63e8ca694f.png)
+
+## The search Tree ADT-Binary Search Trees 搜索树 ADT-二叉搜索树
+
+搜索树ADT（抽象数据类型）中的一种重要实现是**二叉搜索树**（Binary Search Tree, 简称BST）。二叉搜索树是一种特殊的二叉树结构，具有高效的查找、插入和删除操作。
+
+### 1. 二叉搜索树的定义
+
+二叉搜索树是一棵二叉树，其中每个节点都包含一个“键值”。这棵树满足以下性质：
+
+- 对于任意一个节点 `N`，其左子树中的所有节点的键值都小于 `N` 的键值。
+- 对于任意一个节点 `N`，其右子树中的所有节点的键值都大于 `N` 的键值。
+- 每个节点都有一个整数键，而且这些键是不同的。
+- 左右子树也同样是二叉搜索树（递归性质）。
+
+![755631ea-9feb-49ee-879f-c6d42975ceae](./images/755631ea-9feb-49ee-879f-c6d42975ceae.png)
+
+#### 二叉搜索树的优缺点
+
+* **优点**：二叉搜索树的查找、插入和删除操作在平均情况下的时间复杂度均为 \(O(\log n)\)，因为在理想情况下，树的高度接近对数级别。
+* **缺点**：在最坏情况下（如树退化成链表），二叉搜索树的高度可能达到 \(O(n)\)，此时操作效率下降。为了避免这种情况，可以使用平衡二叉搜索树（如AVL树或红黑树）来保证高度平衡，从而提高性能。
+
+#### 二叉搜索树的应用场景
+
+二叉搜索树适用于需要频繁查找、插入和删除的场景，例如数据库、字典、集合等。其结构和操作使得数据存储和检索都相对高效，在实际应用中被广泛采用。
+
+### 2. 二叉搜索树的基本操作
+
+二叉搜索树支持多种基本操作，利用其键值有序的特性，使得这些操作的效率较高。具体操作包括：
+
+- Operations:
+  
+  - SearchTree  MakeEmpty( SearchTree T );  //置空
+  
+  - Position  Find( ElementType X, SearchTree T ); //查找
+  
+  - Position  FindMin( SearchTree T ); //查找最小值
+  
+  - Position  FindMax( SearchTree T ); //查找最大值
+  
+  - SearchTree  Insert( ElementType X, SearchTree T ); //插入
+  
+  - SearchTree  Delete( ElementType X, SearchTree T ); //删除
+  
+  - ElementType  Retrieve(Position P );  //检索
+
+#### 查找（Search/Find）
+
+在二叉搜索树中查找一个元素时，从根节点开始：
+
+- 若当前节点的键值等于要查找的值，则找到该节点。
+- 若当前节点的键值大于要查找的值，则在左子树中继续查找。
+- 若当前节点的键值小于要查找的值，则在右子树中继续查找。
+
+这种二分性质使得查找操作的时间复杂度为 \(O(h)\)，其中 \(h\) 是树的高度。
+
+```c
+Position  Find( ElementType X,  SearchTree T ) 
+{ 
+    if ( T == NULL ) 
+        return  NULL;  /* not found in an empty tree */
+    if ( X < T->Element )  /* if smaller than root */
+        return  Find( X, T->Left );  /* search left subtree */
+    else 
+        if ( X > T->Element )  /* if larger than root */
+            return  Find( X, T->Right );  /* search right subtree */
+        else   /* if X == root */
+            return  T;  /* found */
+} 
+
+```
+
+非递归版本
+
+```c
+Position  Iter_Find( ElementType X,  SearchTree T ) 
+{ 
+    /* iterative version of Find */
+    while  ( T )   {
+        if  ( X == T->Element )  
+            return T ;  /* found */
+        if  ( X < T->Element )
+            T = T->Left ; /*move down along left path */
+        else
+            T = T-> Right ; /* move down along right path */
+    }  /* end while-loop */
+    return  NULL ;   /* not found */
+} 
+
+```
+
+##### 查找最大
+
+```c
+Position  FindMax( SearchTree T ) 
+{ 
+    if ( T != NULL ) {
+        while ( T->Right != NULL )   
+            T = T->Right;   /* keep moving to find right most */
+        return T;  /* return NULL or the right most */
+    }
+} 
+
+```
+
+##### 查找最小
+
+```c
+Position  FindMin( SearchTree T ) 
+{ 
+      if ( T == NULL )   
+          return  NULL; /* not found in an empty tree */
+      else 
+          if ( T->Left == NULL )   return  T;  /* found left most */
+          else   return  FindMin( T->Left );   /* keep moving to left */
+} 
+
+```
+
+#### 插入（Insert）
+
+在二叉搜索树中插入一个新节点时：
+
+- 从根节点开始，找到插入位置，保持二叉搜索树的有序性。
+- 若要插入的值小于当前节点的键值，移动到左子树；若大于当前节点的键值，则移动到右子树。
+- 重复这一过程，直到找到一个空位置，然后插入节点。
+
+插入操作的时间复杂度同样为 \(O(deep)\)。
+
+```c
+SearchTree  Insert( ElementType X, SearchTree T ) 
+{ 
+    if ( T == NULL ) { /* Create and return a one-node tree */ 
+        T = malloc( sizeof( struct TreeNode ) ); 
+        if ( T == NULL ) 
+            FatalError( "Out of space!!!" ); 
+        else { 
+            T->Element = X; 
+            T->Left = T->Right = NULL; 
+        } 
+    }  /* End creating a one-node tree */
+    else{  /* If there is a tree */
+        if ( X < T->Element ) 
+            T->Left = Insert( X, T->Left ); 
+        else 
+            if ( X > T->Element ) 
+                T->Right = Insert( X, T->Right ); 
+            /* Else X is in the tree already; we'll do nothing */ 
+    }
+    return  T;   /* Do not forget this line!! */ 
+}
+
+
+```
+
+#### 删除（Delete）
+
+删除操作相对复杂，但依然遵循二叉搜索树的结构特性。删除节点的情形分为三种：
+
+- **删除叶子节点**：直接删除该节点即可。
+- **删除仅有一个子节点的节点**：用其唯一的子节点代替该节点。
+- **删除有两个子节点的节点**：找到该节点的中序后继或前驱节点，用后继（或前驱）节点的键值替代该节点的键值，然后删除该后继（或前驱）节点。
+
+删除操作的时间复杂度也是 \(O(deep)\)。
+
+```c
+SearchTree  Delete( ElementType X, SearchTree T ) {   
+    Position  TmpCell; 
+    if ( T == NULL )   Error( "Element not found" ); 
+    else  if ( X < T->Element )  /* Go left */ 
+        T->Left = Delete( X, T->Left ); 
+    else  if ( X > T->Element )  /* Go right */ 
+        T->Right = Delete( X, T->Right ); 
+    else{  /* Found element to be deleted */
+        if ( T->Left && T->Right ) {  /* Two children */ 
+            /* Replace with smallest in right subtree */ 
+            TmpCell = FindMin( T->Right ); 
+            T->Element = TmpCell->Element; 
+            T->Right = Delete( T->Element, T->Right );  } /* End if */
+        else {  /* One or zero child */ 
+            TmpCell = T; 
+            if ( T->Left == NULL ) /* Also handles 0 child */ 
+                T = T->Right; 
+            else  if ( T->Right == NULL ){  
+                T = T->Left; 
+            }
+            free( TmpCell );    /* End else 1 or 0 child */
+    }
+    return  T; 
+}
+
+
+```
+
+延迟删除：如果没有很多删除，那么可以采用延迟删除: 在每个节点上添加一个标志字段，以标记某个节点是否处于活动状态或已删除。因此，我们可以删除一个节点，而不实际释放该节点的空间。如果重新插入已删除的密钥，我们就不必再次调用 malloc
+
+- 时间消耗分析
+  N 个节点树的内部路径长度定义为: $D(N) = \sum_{i=1}^N d(i), \quad D(1) = 0$    其中 $d(i)$是节点 i 的深度。  
+  假设所有二叉搜索树的可能性相同。然后平均 $D (N)$ (接管所有可能的插入序列)是 $O (N logN)$。因此，任何节点的预期深度都是 $O (logN)$ 。
+
+#### Tail recursion 尾递归
+
+尾递归（Tail Recursion）是递归函数的一种特殊形式，在这种递归中，递归调用是函数中最后执行的操作，并且不需要在递归调用之后做任何额外的操作。这种形式的递归在某些编程语言中可以进行优化，称为“尾递归优化”（Tail Call Optimization, TCO），从而避免栈溢出问题。
+
+```c
+def recsum(x):
+    if x==1:
+        return x
+    else:
+        return x+recsum(x-1)
+//normal recursion 常递归
+```
+
+```c
+def tailrecsum(x,total =0):
+    if x == 0:
+        return total
+    else: 
+        return tailrecsum(x-1,total+x)
+//tail recursion 尾递归
+```
+
+- Tail recursion is efficient. No need to save Parameters in stack.  
+  尾递归是有效的。不需要在堆栈中保存参数
+
+#### AVL Trees
+
+(Self-balancing **binary search Tree** or Height-Balanced Binary Search Tree)   
+(平衡树或高度平衡二叉查找树) 
+
+-     一棵AVL树或者是空树，或者是具有下列性质的二叉排序树：**它的左子树和右子树都是AVL树，且左子树和右子树的高度之差的绝对值不超过1**。 
+     <img src="./images/ed524d89-1323-470c-8639-0ab75ac780a7.png" title="" alt="ed524d89-1323-470c-8639-0ab75ac780a7" style="zoom:33%;">
+  平衡因子(BF, Balance Factor) =左子树的高度-右子树的高度  
+  AVL树任一结点平衡因子只能取 -1, 0, 1  
+  只要在插入或删除节点后违反了这个平衡条件，就会进行旋转操作来恢复平衡。
+
+- **时间复杂度**：AVL树通过保持平衡性确保基本操作的时间复杂度接近 $O(logN)$：
+  
+  * 查找：$O(logN)$
+  * 插入：$O(logN)$
+  * 删除：$O(logN)$
+
+##### Minimum unbalanced subtree  最小不平衡子树
+
+- 如果在一棵平衡的二叉排序树中插入一个新结点，造成了不平衡。此时需要调整树的结构，使之平衡化。
+
+- 每插入一个新结点时, AVL 树中相关结点的平衡状态会发生改变。因此,在插入一个新结点后，需要<u><span>从插入位置沿通向根的路径回溯</span></u>，<u><span>检查各结点的平衡因子</span></u>。
+  
+  <img title="" src="./images/d3eee876-bc21-48df-823b-1d36298d6a45.png" alt="d3eee876-bc21-48df-823b-1d36298d6a45" style="zoom:50%;">
+
+###### AVL树的旋转操作
+
+为了保持平衡性，AVL树在插入或删除节点时，若破坏了平衡，会通过**旋转操作**来调整结构。旋转操作有四种类型：
+
+![9b2f6cacfcfd977f4c0379791bc88d4](D:\Documents\WeChat%20Files\wxid_ifi6pri09hlj22\FileStorage\Temp\9b2f6cacfcfd977f4c0379791bc88d4.jpg)
+
+1. **右旋（Right Rotation）RR rotation** 
+   右旋适用于左子树较重的情况。例如，如果插入节点使得某个子树的左子树不平衡，则可以进行右旋。右旋步骤如下：
+   
+   1. 设 `y` 为当前不平衡节点，`x` 为 `y` 的左子节点。
+   
+   2. 右旋将 `y` 的左子节点 `x` 提升为新根节点，而 `y` 成为 `x` 的右子节点。
+
+```mermaid
+graph TD
+    %% Right Rotation %%
+    subgraph A["Before Right Rotation"]
+        A1((y))
+        A1 -->|Left| A2((x))
+        A1 -->|Right| A3((T3))
+        A2 -->|Left| A4((T1))
+        A2 -->|Right| A5((T2))
+    end
+
+    subgraph B["After Right Rotation"]
+        B1((x))
+        B1 -->|Left| B2((T1))
+        B1 -->|Right| B3((y))
+        B3 -->|Left| B4((T2))
+        B3 -->|Right| B5((T3))
+    end
+
+
+
+```
+
+2. **左旋（Left Rotation）LL rotation** 
+   左旋适用于右子树较重的情况。例如，如果插入节点使得某个子树的右子树不平衡，则可以进行左旋。左旋步骤如下：
+   
+   1. 设 `y` 为当前不平衡节点，`x` 为 `y` 的右子节点。
+   
+   2. 左旋将 `y` 的右子节点 `x` 提升为新根节点，而 `y` 成为 `x` 的左子节点。
+
+```mermaid
+graph TD
+    %% Left Rotation %%
+    subgraph Before Left Rotation
+        C1((y))
+        C1 -->|Left| C2((T1))
+        C1 -->|Right| C3((x))
+        C3 -->|Left| C4((T2))
+        C3 -->|Right| C5((T3))
+    end
+
+    subgraph After Left Rotation
+        D1((x))
+        D1 -->|Left| D2((y))
+        D1 -->|Right| D3((T3))
+        D2 -->|Left| D4((T1))
+        D2 -->|Right| D5((T2))
+    end
+
+
+```
+
+3. **左-右旋（Left-Right Rotation）LR rotation**：先左旋再右旋
+   当新节点插入到不平衡节点的左子节点的右子树上时，需要先左旋后右旋。这种情况也被称为“左-右情况”：
+   
+   1. 先对不平衡节点的左子节点执行一次左旋，将右子节点提升为新的左子节点。
+   2. 然后对不平衡节点执行一次右旋，恢复平衡。
+
+```mermaid
+graph TD
+    %% Left-Right Rotation %%
+    subgraph Before Left-Right Rotation
+        E1((y))
+        E1 -->|Left| E2((x))
+        E1 -->|Right| E3((T4))
+        E2 -->|Left| E4((T1))
+        E2 -->|Right| E5((z))
+        E5 -->|Left| E6((T2))
+        E5 -->|Right| E7((T3))
+    end
+
+    subgraph After Left-Right Rotation
+        F1((z))
+        F1 -->|Left| F2((x))
+        F1 -->|Right| F3((y))
+        F2 -->|Left| F4((T1))
+        F2 -->|Right| F5((T2))
+        F3 -->|Left| F6((T3))
+        F3 -->|Right| F7((T4))
+    end
+
+
+```
+
+4. **右-左旋（Right-Left Rotation）RL rotation**：先右旋再左旋
+   当新节点插入到不平衡节点的右子节点的左子树上时，需要先右旋后左旋。这种情况也被称为“右-左情况”：
+   
+   1. 先对不平衡节点的右子节点执行一次右旋，将左子节点提升为新的右子节点。
+   2. 然后对不平衡节点执行一次左旋，恢复平衡。
+
+```mermaid
+graph TD
+    %% Right-Left Rotation %%
+    subgraph Before Right-Left Rotation
+        G1((y))
+        G1 -->|Left| G2((T1))
+        G1 -->|Right| G3((x))
+        G3 -->|Left| G4((z))
+        G3 -->|Right| G5((T4))
+        G4 -->|Left| G6((T2))
+        G4 -->|Right| G7((T3))
+    end
+
+    subgraph After Right-Left Rotation
+        H1((z))
+        H1 -->|Left| H2((y))
+        H1 -->|Right| H3((x))
+        H2 -->|Left| H4((T1))
+        H2 -->|Right| H5((T2))
+        H3 -->|Left| H6((T3))
+        H3 -->|Right| H7((T4))
+    end
+
+
+```
+
+```c
+AvlTree  Insert( ElementType X, AvlTree T ) {   
+    if ( T == NULL ) { /* Create and return a one-node tree */ 
+        T = malloc( sizeof( struct AvlNode ) ); 
+        if ( T == NULL )  FatalError( "Out of space!!!" ); 
+        else {  T->Element = X; T->Height = 0; T->Left = T->Right = NULL; } 
+    }  /* End creating a one-node tree */
+    else    if ( X < T->Element ) {  /* handle left insertion */
+          T->Left = Insert( X, T->Left ); 
+        if ( Height( T->Left ) - Height( T->Right ) == 2 ) /* not balanced */
+            if ( X < T->Left->Element )  /* LL Rotation */
+                T = SingleRotateWithLeft( T ); 
+                else  /* LR Rotation */
+                T = DoubleRotateWithLeft( T ); } /* End left */
+    else if( X > T->Element ) {  /* handle right insertion */
+        T->Right = Insert( X, T->Right ); 
+        if ( Height( T->Right ) - Height( T->Left ) == 2 ) /* not balanced */
+            if ( X > T->Right->Element )  /* RR Rotation */
+            T = SingleRotateWithRight( T ); 
+            else  /* RL Rotation */
+            T = DoubleRotateWithRight( T ); }  /* End right */
+             /* Else X is in the tree already; we'll do nothing */ 
+    T->Height = Max( Height( T->Left ), Height( T->Right ) ) + 1; 
+    return T; 
+}
+
+
+```
+
+- 具有 n 个节点的平衡二叉树将有一个深度 $O (log_2n)$。AVL 树因此保证搜索时间将为 $O (log_2n)$。
+
+- Overhead involved in rebalancing as the AVL tree  
+  作为 AVL 树参与再平衡的开销
+  
+  - Justified when search operations exceed insertions, faster searches compensate for slower insertions.  
+    当搜索操作超过插入时，更快的搜索可以弥补较慢的插入。
+
+- Empirical studies indicate that on the average, rebalancing is required for approximately 45 percent of the insertions. Roughly one-half of these rotations require aredouble rotations.  
+  实证研究表明，平均而言，大约45% 的插入需要重新平衡。这些旋转大约有一半需要双重旋转。
+
+##### Forest 森林
+
+- Transform a tree into a binary tree 将树转换为二叉树
+  
+  <img src="./images/68e143a2-4319-404b-be06-bb3c32426d97.png" title="" alt="68e143a2-4319-404b-be06-bb3c32426d97" style="zoom:50%;">
+
+- Transform a forest into a binary tree 将森林转换为二叉树
+  
+  <img src="./images/0a04c93a-3b12-4219-b7a2-d27373a22702.png" title="" alt="0a04c93a-3b12-4219-b7a2-d27373a22702" style="zoom:50%;">
+
+- Transform a binary tree into tree 将二叉树转换为树
+  
+  <img src="./images/35839686-97cf-4028-9b7a-21d2de89a86a.png" title="" alt="35839686-97cf-4028-9b7a-21d2de89a86a" style="zoom:50%;">
+
+#### Huffman Tree 哈夫曼树（最优二叉树）
+
+- Weighted Path Length, WPL 加权通路长度
+  
+  $$
+  WPL = \sum_{i=1}^k w_i * l_i
+
+  $$
+  
+  - $w_i$  is the weight of the $i-th$ leaf;  
+    $w _ i $是第 i 个叶子的重量;
+  
+  - $l_i$  is the path length from root to the $i-th$ leaf  
+    $l _ i $是从根到 第 i 个叶子的路径长度
+
+- HuffmanTree: the binary tree with the minimum weighted path length.  
+  哈夫曼树带权路径长度达到最小的扩充二叉树。  
+  哈夫曼树的特点：权值大的结点离根最近。
+
+- Repeatedly:
+  
+  1. Find two trees of lowest weight  
+     找出两棵重量最轻的树
+  
+  2. Merge them to form a new tree whose weight is the sum of their weights  
+     将它们合并成一棵新树，其重量等于它们的重量之和
+  
+  <img src="./images/da73f88e-956f-48da-a2e6-91050362ea9e.png" title="" alt="da73f88e-956f-48da-a2e6-91050362ea9e" style="zoom:50%;">
+
+- 应用
+  
+  - 不平衡编码（电报码）
+    
+    - 不能出现重码
+    
+    - 不能出现一个编码是另一个编码的前缀（prefix code，前缀码）
+
+# CH7 Graph 第七章 图
+
+- Definitions and Terminology 定义和术语
+
+- Implementation of Graph 图的代码实现
+
+- Graph Traversal 图的遍历
+
+- Topological Sort 拓扑排序
+
+- Shortest-Path Algorithms 最短路径算法
+
+- Network Flow Problems 网络流量问题
+
+- Minimum Spanning Tree 最小生成树
+
+## Definitions and Terminology 定义和术语
+
+### Definition 定义
+
+- G( V, E )          
+  where  G ::= graph,                      
+  V = V( G ) ::= finite nonempty set of vertices 有限非空顶点集
+  E = E( G ) ::= finite set of edges.  有限的一组边缘
+
+- General graphs differ from trees   一般图与树不同
+  
+  - need not have a root node   不需要有根节点
+  
+  - no implicit parent-child relationship  没有隐含的亲子关系
+  
+  - may be several (or no) paths from  one vertex to another.  可能是从一个顶点到另一个顶点的多个(或没有)路径
+
+### Terminologies
+
+- Undirected graph:  ( vi , vj ) = ( vj , vi ) ::= the same edge.  
+  无向图
+
+- Directed graph (digraph):  < vi , vj > $\ne$< vj , vi >   
+  有向图
+
+- Restrictions :         
+  
+  - Self loop is illegal. 自循环是非法的。
+  
+  - Multigraph is not considered  不考虑乘法
+
+- Complete graph: a graph that has the maximum number of edges   
+  完全图: 具有最大边数的图
+
+- <img title="" src="./images/020f2b5d-779f-4408-9049-047e98417013.png" alt="020f2b5d-779f-4408-9049-047e98417013" style="zoom:50%;">
+  
+  $v_i$ and $v_j$ are adjacent  邻接
+  $( v_i , v_j )$ is incident on $v_i$ and $v_j$ 
+
+- <img src="./images/9c143a27-0c11-47bc-975a-5c9fcdaf0552.png" title="" alt="9c143a27-0c11-47bc-975a-5c9fcdaf0552" style="zoom:50%;">
+  
+  $v_i$ is adjacent to $v_j$ ;  $v_j$ is adjacent from $v_i$ ;
+  $< v_i , v_j >$ is incident on $v_i$and $v_j$  
+
+- G’ is a subgraph 子图 of G ::= $\text{V(G')} \subseteq \text{V(G)} \; \&\& \; \text{E(G')} \subseteq \text{E(G)}$
+
+- $\text{Path 路径 (}\subseteq \text{G) from } v_p \text{ to } v_q ::= \{ v_p, v_{i_1}, v_{i_2}, \dots, v_{i_n}, v_q \} \\ \text{such that } (v_p, v_{i_1}), (v_{i_1}, v_{i_2}), \dots, (v_{i_n}, v_q) \text{ or } \langle v_p, v_{i_1}, \dots, v_{i_n}, v_q \rangle \text{ belong to E(G)}$
+
+- Length of a path 路径长度 ::=  number of edges on the path 
+
+- Simple path 简单路径 ::= $v_{i_1}, v_{i_2}, \dots, v_{i_n}$ are distinct 
+
+- Cycle 环路/回路 ::= simple path with $v_p = v_q$ 
+
+- $v_i \text{ and } v_j$ in an undirected G are connected if there is a path from $v_i$ to $v_j$ (and hence there is also a path from $v_i$ to $v_j$ ) 
+
+- $\text{An undirected graph } G \text{ is \textbf{connected} if every pair of distinct } v_i \text{ and } v_j \text{ are connected}$
+
+- (Connected) Component of an undirected G 连通分量 ::= the maximal connected subgraph 
+
+- A DAG 有向无环图 ::= a directed acyclic graph 
+
+- Strongly connected directed graph G 有向图强连通和弱连通 ::= for every pair of $v_i$ and $v_j$ in V( G ), there exist directed paths from $v_i$ to $v_j$ and from $v_j$ to $v_i$.  If the graph is connected without direction to the edges, then it is said to be weakly connected 
+
+- Strongly connected component 有向图的强连通分量 ::=  the maximal subgraph that is strongly connected 
+
+- Degree( v ) 度 ::= number of edges incident to v.  For a directed G, we have in-degree and out-degree.  
+  入度in-degree 出度out-degree
+  
+  <img src="./images/14e80290-4c0a-421a-8154-ff9b42c52c3c.png" title="" alt="14e80290-4c0a-421a-8154-ff9b42c52c3c" style="zoom:33%;">
+
+- Given G with n vertices and e edges, then 
+  
+  $$
+  e = \left( \sum_{i=0}^{n-1} d_i \right) / 2 \quad \text{where} \quad d_i = \text{degree}(v_i) 
+  $$
+
+## Implementation of Graph
+
+### Adjacency  Matrix 邻接矩阵
+
+```c
+#define    maxvtxnum    user_supply
+typedef    struct   {
+       Edgetype    
+               arc[maxvtxnum][maxvtxnum];
+       int    vtxnum,  arcnum;
+}  graph;                                     
+
+```
+
+$$
+A_{ij} = \begin{cases} 
+0 & (v_i, v_j) \notin E \\ 
+1 & (v_i, v_j) \in E 
+\end{cases}
+
+$$
+
+Note: For a weighted digraph, theweight of the edge from vertex i  to vertex j is used instead of 1 in the adjacency matrix.
+
+<img src="./images/54ce4337-cab9-40af-9bba-fb1a4747b425.png" title="" alt="54ce4337-cab9-40af-9bba-fb1a4747b425" style="zoom:50%;">
+
+- Merits of Adjacency Matrix 邻接矩阵的优点
+  
+  - Fromthe adjacency matrix, to determine the connection of vertices is easy  
+    从邻接矩阵来看，确定顶点之间的连接是很容易的
+  
+  - Thedegree of a vertex is $\sum_{j=1}^n A[i][j]$
+  
+  - For adirected digraph, the sum of 1 (or true) in row i of the adjacency matrix is the out-degree of the ith vertex.  
+    对于有向有向图，邻接矩阵第i行的1(或 true)之和就是第i个顶点的出度。
+  
+  - The sum of the entries in the ith column is its in-degree.  
+    第 i 列中的条目之和是它的度数。
+
+- Disadvantage of adjacencymatrix: 
+  
+  - If a graph does not have many edges, theadjacency matrix will be sparse, and thus a waste of space  
+    如果一个图没有很多边，那么邻接矩阵将是稀疏的，从而浪费了空间
+
+### Correlated  matrix 相关矩阵
+
+```c
+#define  max vtxnum    user_supply
+#define   maxedgenum    user_supply
+
+typedef    struct   {
+       int arcs[maxvtxnum ][maxedgenum];
+       int    vtxnum,  arcnum;
+}  graph;
+
+
+```
+
+<img src="./images/a44b51e5-8426-42f8-9598-9d990c956133.png" title="" alt="a44b51e5-8426-42f8-9598-9d990c956133" style="zoom:50%;">
+
+<img src="./images/bb771d04-9675-4f39-bfbd-1febfdf6ba51.png" title="" alt="bb771d04-9675-4f39-bfbd-1febfdf6ba51" style="zoom:50%;">
+
+$$
+B_{ij} = \begin{cases} 
+0 & v_i \text{ and } e_j \text{ not correlated} \\ 
+-1 & v_i \text{ is tail of } e_j \\ 
+1 & v_i \text{ is head of } e_j 
+\end{cases}
+
+$$
+
+### Adjacency  list  邻接表 （重点）
+
+```c
+#define   maxvtxnum    user_supply
+typedef   struct  arcnode  {
+      int    adjvex;
+      edgetype   info;
+      struct   arcnode  * nextarc;
+} arcnode;
+typedef   struct  {
+      vextype   vexdata;
+      struct  arcnode   * firstarc;
+}  vexnode;
+vexnode adjlist[maxvtxnum]; 
+
+```
+
+<img src="./images/15875160-418e-4081-acc6-a6eb9d94a546.png" title="" alt="15875160-418e-4081-acc6-a6eb9d94a546" style="zoom:50%;">
+
+<img src="./images/cefe9acf-a087-4297-a0cf-8eddc215d5be.png" title="" alt="cefe9acf-a087-4297-a0cf-8eddc215d5be" style="zoom:50%;">
+
+<img src="./images/d690ade9-af0f-49a0-b236-26504425690d.png" title="" alt="d690ade9-af0f-49a0-b236-26504425690d" style="zoom:50%;">
+
+Note:  The order of nodes in each list does not matter.  
+注意: 每个列表中节点的顺序并不重要。
+
+#### Inverse adjacency list  反相邻列表
+
+If G is directed, we need to find in-degree(v) as well.  
+Addinverse adjacency lists.  Based on in-degree    
+如果 G 是定向的，我们也需要找到 in 度(v)。逆邻接列表。基于 in 度
+
+<img src="./images/fb1dbd06-1a53-48bc-b9f8-6f1764c1d420.png" title="" alt="fb1dbd06-1a53-48bc-b9f8-6f1764c1d420" style="zoom:50%;">
+
+### Orthogonal list 十字链表
+
+```c
+#define  maxvtxnum    user_supply
+typedef   struct  anode  {
+      int  tailvex , headvex;
+      struct  anode  * hlink , * tlink;
+}  anode;
+typedef   struct   {
+      vextype   data;
+      struct  anode * firstin , * firstout;
+}  vnode;
+ vnode  ortlist[maxvtxnum];                                     
+
+```
+
+<img src="./images/bd7b05cb-bdb4-476c-8b03-bd4a0a3e73bb.png" title="" alt="bd7b05cb-bdb4-476c-8b03-bd4a0a3e73bb" style="zoom:50%;">
+
+<img src="./images/64ccb71f-3aec-47ea-a67d-7bf9838a174b.png" title="" alt="64ccb71f-3aec-47ea-a67d-7bf9838a174b" style="zoom:50%;">
+
+<img src="./images/6aaecc23-e6a8-44bc-a1eb-931fcbf4d865.png" title="" alt="6aaecc23-e6a8-44bc-a1eb-931fcbf4d865" style="zoom:50%;">
+
+#### 十字链表的基本结构
+
+1. **节点结构**：十字链表的每个节点存储矩阵的一个非零元素。节点包含的数据结构一般为：
+   
+   * `row`：该元素所在的行。
+   * `col`：该元素所在的列。
+   * `value`：该元素的具体值。
+   * `right`：指向同一行中下一个非零元素的指针（横向）。
+   * `down`：指向同一列中下一个非零元素的指针（纵向）。
+
+2. **头节点数组**：为了快速访问行和列，十字链表一般会设置两个头节点数组，一个用于存储每行的起始节点指针，另一个用于存储每列的起始节点指针。
+
+### Adjacency multilist 邻接多重表
+
+Only for undirected G   只对无向 G 有效
+
+<img src="./images/3a171699-8bf3-4fdf-b3fc-11ddcdc6789c.png" title="" alt="3a171699-8bf3-4fdf-b3fc-11ddcdc6789c" style="zoom:50%;">
+
+```c
+#define   maxvtxnum    user_supply
+typedef   struct  enode  {
+      int   mark, ivex, jvex;
+      struct  enode  * ilink, * jlink;
+}  enode;
+typedef   struct   {
+      vextype   data;
+      struct  enode * firstedge;
+}  vnode;
+vnode admlist[maxvtxnum];                    
+
+```
+
+<img title="" src="./images/d7d5c1d5-a536-4fcf-9c73-e1350aec2cf8.png" alt="d7d5c1d5-a536-4fcf-9c73-e1350aec2cf8" style="zoom:67%;">
+
+<img src="./images/54e1116f-df3b-4017-90cc-4d0ee2030367.png" title="" alt="54e1116f-df3b-4017-90cc-4d0ee2030367" style="zoom:50%;">
+
+#### 邻接多重表的结构
+
+在无向图中，每条边都会连接两个顶点。因此，邻接多重表通过双向链表来存储图的边信息，使得可以从任一顶点快速找到相连的另一顶点。邻接多重表通常由两部分组成：**顶点表**和**边表**。
+
+1. **顶点表**：顶点表存储每个顶点的信息，每个顶点包含一个指向该顶点边表的链表头指针。顶点表的节点结构一般包括：
+   
+   * `vertex`：顶点的值或标识。
+   * `first_edge`：指向该顶点相关边的链表的头指针。
+
+2. **边表**：边表用于存储无向图中的边，每条边连接两个顶点。边表的节点结构一般包括：
+   
+   * `ivex`：边的一个顶点。
+   * `jvex`：边的另一个顶点。
+   * `ilink`：指向与`ivex`相连的下一条边的指针。
+   * `jlink`：指向与`jvex`相连的下一条边的指针。
+   * `info`（可选）：存储边的权重或其他信息。
+
+## Graph Traversal 图的遍历
+
+- Some applications requirevisiting every vertex in the graph exactly once.
+
+- The application may require thatvertices be visited in some special order based on graph topology
+  
+  - depth-first search
+  
+  - breadth-first search
+
+### Depth-First Search
+
+- Basic Idea
+  
+  - Startfrom a given vertex v and visit it. 
+  
+  - Visit the first neighbor, w, of v. Then visit the first neighbor of w that has notalready been visited, etc.
+  
+  - If a node with no unexamined neighbors, then backup to the last visited node andexamine its remaining neighbors.
+  
+  - The search continues until all nodes of the graph have been examined.
