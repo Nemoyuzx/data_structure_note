@@ -2091,8 +2091,8 @@ Using preorder together with inorder (or inorder with postorder) candecide only 
 
 #### 二叉搜索树的优缺点
 
-* **优点**：二叉搜索树的查找、插入和删除操作在平均情况下的时间复杂度均为 \(O(\log n)\)，因为在理想情况下，树的高度接近对数级别。
-* **缺点**：在最坏情况下（如树退化成链表），二叉搜索树的高度可能达到 \(O(n)\)，此时操作效率下降。为了避免这种情况，可以使用平衡二叉搜索树（如AVL树或红黑树）来保证高度平衡，从而提高性能。
+* **优点**：二叉搜索树的查找、插入和删除操作在平均情况下的时间复杂度均为 $O(\log n)$，因为在理想情况下，树的高度接近对数级别。
+* **缺点**：在最坏情况下（如树退化成链表），二叉搜索树的高度可能达到 $O(n)$，此时操作效率下降。为了避免这种情况，可以使用平衡二叉搜索树（如AVL树或红黑树）来保证高度平衡，从而提高性能。
 
 #### 二叉搜索树的应用场景
 
@@ -2126,7 +2126,7 @@ Using preorder together with inorder (or inorder with postorder) candecide only 
 - 若当前节点的键值大于要查找的值，则在左子树中继续查找。
 - 若当前节点的键值小于要查找的值，则在右子树中继续查找。
 
-这种二分性质使得查找操作的时间复杂度为 \(O(h)\)，其中 \(h\) 是树的高度。
+这种二分性质使得查找操作的时间复杂度为 $O(h)$，其中 $h$ 是树的高度。
 
 ```c
 Position  Find( ElementType X,  SearchTree T ) 
@@ -2199,7 +2199,7 @@ Position  FindMin( SearchTree T )
 - 若要插入的值小于当前节点的键值，移动到左子树；若大于当前节点的键值，则移动到右子树。
 - 重复这一过程，直到找到一个空位置，然后插入节点。
 
-插入操作的时间复杂度同样为 \(O(deep)\)。
+插入操作的时间复杂度同样为 $O(deep)$。
 
 ```c
 SearchTree  Insert( ElementType X, SearchTree T ) 
@@ -2235,7 +2235,7 @@ SearchTree  Insert( ElementType X, SearchTree T )
 - **删除仅有一个子节点的节点**：用其唯一的子节点代替该节点。
 - **删除有两个子节点的节点**：找到该节点的中序后继或前驱节点，用后继（或前驱）节点的键值替代该节点的键值，然后删除该后继（或前驱）节点。
 
-删除操作的时间复杂度也是 \(O(deep)\)。
+删除操作的时间复杂度也是 $O(deep)$。
 
 ```c
 SearchTree  Delete( ElementType X, SearchTree T ) {   
@@ -2303,7 +2303,9 @@ def tailrecsum(x,total =0):
 (平衡树或高度平衡二叉查找树) 
 
 -     一棵AVL树或者是空树，或者是具有下列性质的二叉排序树：**它的左子树和右子树都是AVL树，且左子树和右子树的高度之差的绝对值不超过1**。 
-     <img src="./images/ed524d89-1323-470c-8639-0ab75ac780a7.png" title="" alt="ed524d89-1323-470c-8639-0ab75ac780a7" style="zoom:33%;">
+  
+           <img src="./images/ed524d89-1323-470c-8639-0ab75ac780a7.png" title="" alt="ed524d89-1323-470c-8639-0ab75ac780a7" style="zoom:33%;">
+  
   平衡因子(BF, Balance Factor) =左子树的高度-右子树的高度  
   AVL树任一结点平衡因子只能取 -1, 0, 1  
   只要在插入或删除节点后违反了这个平衡条件，就会进行旋转操作来恢复平衡。
@@ -2511,7 +2513,6 @@ AvlTree  Insert( ElementType X, AvlTree T ) {
   
   $$
   WPL = \sum_{i=1}^k w_i * l_i
-
   $$
   
   - $w_i$  is the weight of the $i-th$ leaf;  
@@ -2542,297 +2543,4 @@ AvlTree  Insert( ElementType X, AvlTree T ) {
     
     - 不能出现一个编码是另一个编码的前缀（prefix code，前缀码）
 
-# CH7 Graph 第七章 图
-
-- Definitions and Terminology 定义和术语
-
-- Implementation of Graph 图的代码实现
-
-- Graph Traversal 图的遍历
-
-- Topological Sort 拓扑排序
-
-- Shortest-Path Algorithms 最短路径算法
-
-- Network Flow Problems 网络流量问题
-
-- Minimum Spanning Tree 最小生成树
-
-## Definitions and Terminology 定义和术语
-
-### Definition 定义
-
-- G( V, E )          
-  where  G ::= graph,                      
-  V = V( G ) ::= finite nonempty set of vertices 有限非空顶点集
-  E = E( G ) ::= finite set of edges.  有限的一组边缘
-
-- General graphs differ from trees   一般图与树不同
-  
-  - need not have a root node   不需要有根节点
-  
-  - no implicit parent-child relationship  没有隐含的亲子关系
-  
-  - may be several (or no) paths from  one vertex to another.  可能是从一个顶点到另一个顶点的多个(或没有)路径
-
-### Terminologies
-
-- Undirected graph:  ( vi , vj ) = ( vj , vi ) ::= the same edge.  
-  无向图
-
-- Directed graph (digraph):  < vi , vj > $\ne$< vj , vi >   
-  有向图
-
-- Restrictions :         
-  
-  - Self loop is illegal. 自循环是非法的。
-  
-  - Multigraph is not considered  不考虑乘法
-
-- Complete graph: a graph that has the maximum number of edges   
-  完全图: 具有最大边数的图
-
-- <img title="" src="./images/020f2b5d-779f-4408-9049-047e98417013.png" alt="020f2b5d-779f-4408-9049-047e98417013" style="zoom:50%;">
-  
-  $v_i$ and $v_j$ are adjacent  邻接
-  $( v_i , v_j )$ is incident on $v_i$ and $v_j$ 
-
-- <img src="./images/9c143a27-0c11-47bc-975a-5c9fcdaf0552.png" title="" alt="9c143a27-0c11-47bc-975a-5c9fcdaf0552" style="zoom:50%;">
-  
-  $v_i$ is adjacent to $v_j$ ;  $v_j$ is adjacent from $v_i$ ;
-  $< v_i , v_j >$ is incident on $v_i$and $v_j$  
-
-- G’ is a subgraph 子图 of G ::= $\text{V(G')} \subseteq \text{V(G)} \; \&\& \; \text{E(G')} \subseteq \text{E(G)}$
-
-- $\text{Path 路径 (}\subseteq \text{G) from } v_p \text{ to } v_q ::= \{ v_p, v_{i_1}, v_{i_2}, \dots, v_{i_n}, v_q \} \\ \text{such that } (v_p, v_{i_1}), (v_{i_1}, v_{i_2}), \dots, (v_{i_n}, v_q) \text{ or } \langle v_p, v_{i_1}, \dots, v_{i_n}, v_q \rangle \text{ belong to E(G)}$
-
-- Length of a path 路径长度 ::=  number of edges on the path 
-
-- Simple path 简单路径 ::= $v_{i_1}, v_{i_2}, \dots, v_{i_n}$ are distinct 
-
-- Cycle 环路/回路 ::= simple path with $v_p = v_q$ 
-
-- $v_i \text{ and } v_j$ in an undirected G are connected if there is a path from $v_i$ to $v_j$ (and hence there is also a path from $v_i$ to $v_j$ ) 
-
-- $\text{An undirected graph } G \text{ is \textbf{connected} if every pair of distinct } v_i \text{ and } v_j \text{ are connected}$
-
-- (Connected) Component of an undirected G 连通分量 ::= the maximal connected subgraph 
-
-- A DAG 有向无环图 ::= a directed acyclic graph 
-
-- Strongly connected directed graph G 有向图强连通和弱连通 ::= for every pair of $v_i$ and $v_j$ in V( G ), there exist directed paths from $v_i$ to $v_j$ and from $v_j$ to $v_i$.  If the graph is connected without direction to the edges, then it is said to be weakly connected 
-
-- Strongly connected component 有向图的强连通分量 ::=  the maximal subgraph that is strongly connected 
-
-- Degree( v ) 度 ::= number of edges incident to v.  For a directed G, we have in-degree and out-degree.  
-  入度in-degree 出度out-degree
-  
-  <img src="./images/14e80290-4c0a-421a-8154-ff9b42c52c3c.png" title="" alt="14e80290-4c0a-421a-8154-ff9b42c52c3c" style="zoom:33%;">
-
-- Given G with n vertices and e edges, then 
-  
-  $$
-  e = \left( \sum_{i=0}^{n-1} d_i \right) / 2 \quad \text{where} \quad d_i = \text{degree}(v_i) 
-  $$
-
-## Implementation of Graph
-
-### Adjacency  Matrix 邻接矩阵
-
-```c
-#define    maxvtxnum    user_supply
-typedef    struct   {
-       Edgetype    
-               arc[maxvtxnum][maxvtxnum];
-       int    vtxnum,  arcnum;
-}  graph;                                     
-
-```
-
-$$
-A_{ij} = \begin{cases} 
-0 & (v_i, v_j) \notin E \\ 
-1 & (v_i, v_j) \in E 
-\end{cases}
-
-$$
-
-Note: For a weighted digraph, theweight of the edge from vertex i  to vertex j is used instead of 1 in the adjacency matrix.
-
-<img src="./images/54ce4337-cab9-40af-9bba-fb1a4747b425.png" title="" alt="54ce4337-cab9-40af-9bba-fb1a4747b425" style="zoom:50%;">
-
-- Merits of Adjacency Matrix 邻接矩阵的优点
-  
-  - Fromthe adjacency matrix, to determine the connection of vertices is easy  
-    从邻接矩阵来看，确定顶点之间的连接是很容易的
-  
-  - Thedegree of a vertex is $\sum_{j=1}^n A[i][j]$
-  
-  - For adirected digraph, the sum of 1 (or true) in row i of the adjacency matrix is the out-degree of the ith vertex.  
-    对于有向有向图，邻接矩阵第i行的1(或 true)之和就是第i个顶点的出度。
-  
-  - The sum of the entries in the ith column is its in-degree.  
-    第 i 列中的条目之和是它的度数。
-
-- Disadvantage of adjacencymatrix: 
-  
-  - If a graph does not have many edges, theadjacency matrix will be sparse, and thus a waste of space  
-    如果一个图没有很多边，那么邻接矩阵将是稀疏的，从而浪费了空间
-
-### Correlated  matrix 相关矩阵
-
-```c
-#define  max vtxnum    user_supply
-#define   maxedgenum    user_supply
-
-typedef    struct   {
-       int arcs[maxvtxnum ][maxedgenum];
-       int    vtxnum,  arcnum;
-}  graph;
-
-
-```
-
-<img src="./images/a44b51e5-8426-42f8-9598-9d990c956133.png" title="" alt="a44b51e5-8426-42f8-9598-9d990c956133" style="zoom:50%;">
-
-<img src="./images/bb771d04-9675-4f39-bfbd-1febfdf6ba51.png" title="" alt="bb771d04-9675-4f39-bfbd-1febfdf6ba51" style="zoom:50%;">
-
-$$
-B_{ij} = \begin{cases} 
-0 & v_i \text{ and } e_j \text{ not correlated} \\ 
--1 & v_i \text{ is tail of } e_j \\ 
-1 & v_i \text{ is head of } e_j 
-\end{cases}
-
-$$
-
-### Adjacency  list  邻接表 （重点）
-
-```c
-#define   maxvtxnum    user_supply
-typedef   struct  arcnode  {
-      int    adjvex;
-      edgetype   info;
-      struct   arcnode  * nextarc;
-} arcnode;
-typedef   struct  {
-      vextype   vexdata;
-      struct  arcnode   * firstarc;
-}  vexnode;
-vexnode adjlist[maxvtxnum]; 
-
-```
-
-<img src="./images/15875160-418e-4081-acc6-a6eb9d94a546.png" title="" alt="15875160-418e-4081-acc6-a6eb9d94a546" style="zoom:50%;">
-
-<img src="./images/cefe9acf-a087-4297-a0cf-8eddc215d5be.png" title="" alt="cefe9acf-a087-4297-a0cf-8eddc215d5be" style="zoom:50%;">
-
-<img src="./images/d690ade9-af0f-49a0-b236-26504425690d.png" title="" alt="d690ade9-af0f-49a0-b236-26504425690d" style="zoom:50%;">
-
-Note:  The order of nodes in each list does not matter.  
-注意: 每个列表中节点的顺序并不重要。
-
-#### Inverse adjacency list  反相邻列表
-
-If G is directed, we need to find in-degree(v) as well.  
-Addinverse adjacency lists.  Based on in-degree    
-如果 G 是定向的，我们也需要找到 in 度(v)。逆邻接列表。基于 in 度
-
-<img src="./images/fb1dbd06-1a53-48bc-b9f8-6f1764c1d420.png" title="" alt="fb1dbd06-1a53-48bc-b9f8-6f1764c1d420" style="zoom:50%;">
-
-### Orthogonal list 十字链表
-
-```c
-#define  maxvtxnum    user_supply
-typedef   struct  anode  {
-      int  tailvex , headvex;
-      struct  anode  * hlink , * tlink;
-}  anode;
-typedef   struct   {
-      vextype   data;
-      struct  anode * firstin , * firstout;
-}  vnode;
- vnode  ortlist[maxvtxnum];                                     
-
-```
-
-<img src="./images/bd7b05cb-bdb4-476c-8b03-bd4a0a3e73bb.png" title="" alt="bd7b05cb-bdb4-476c-8b03-bd4a0a3e73bb" style="zoom:50%;">
-
-<img src="./images/64ccb71f-3aec-47ea-a67d-7bf9838a174b.png" title="" alt="64ccb71f-3aec-47ea-a67d-7bf9838a174b" style="zoom:50%;">
-
-<img src="./images/6aaecc23-e6a8-44bc-a1eb-931fcbf4d865.png" title="" alt="6aaecc23-e6a8-44bc-a1eb-931fcbf4d865" style="zoom:50%;">
-
-#### 十字链表的基本结构
-
-1. **节点结构**：十字链表的每个节点存储矩阵的一个非零元素。节点包含的数据结构一般为：
-   
-   * `row`：该元素所在的行。
-   * `col`：该元素所在的列。
-   * `value`：该元素的具体值。
-   * `right`：指向同一行中下一个非零元素的指针（横向）。
-   * `down`：指向同一列中下一个非零元素的指针（纵向）。
-
-2. **头节点数组**：为了快速访问行和列，十字链表一般会设置两个头节点数组，一个用于存储每行的起始节点指针，另一个用于存储每列的起始节点指针。
-
-### Adjacency multilist 邻接多重表
-
-Only for undirected G   只对无向 G 有效
-
-<img src="./images/3a171699-8bf3-4fdf-b3fc-11ddcdc6789c.png" title="" alt="3a171699-8bf3-4fdf-b3fc-11ddcdc6789c" style="zoom:50%;">
-
-```c
-#define   maxvtxnum    user_supply
-typedef   struct  enode  {
-      int   mark, ivex, jvex;
-      struct  enode  * ilink, * jlink;
-}  enode;
-typedef   struct   {
-      vextype   data;
-      struct  enode * firstedge;
-}  vnode;
-vnode admlist[maxvtxnum];                    
-
-```
-
-<img title="" src="./images/d7d5c1d5-a536-4fcf-9c73-e1350aec2cf8.png" alt="d7d5c1d5-a536-4fcf-9c73-e1350aec2cf8" style="zoom:67%;">
-
-<img src="./images/54e1116f-df3b-4017-90cc-4d0ee2030367.png" title="" alt="54e1116f-df3b-4017-90cc-4d0ee2030367" style="zoom:50%;">
-
-#### 邻接多重表的结构
-
-在无向图中，每条边都会连接两个顶点。因此，邻接多重表通过双向链表来存储图的边信息，使得可以从任一顶点快速找到相连的另一顶点。邻接多重表通常由两部分组成：**顶点表**和**边表**。
-
-1. **顶点表**：顶点表存储每个顶点的信息，每个顶点包含一个指向该顶点边表的链表头指针。顶点表的节点结构一般包括：
-   
-   * `vertex`：顶点的值或标识。
-   * `first_edge`：指向该顶点相关边的链表的头指针。
-
-2. **边表**：边表用于存储无向图中的边，每条边连接两个顶点。边表的节点结构一般包括：
-   
-   * `ivex`：边的一个顶点。
-   * `jvex`：边的另一个顶点。
-   * `ilink`：指向与`ivex`相连的下一条边的指针。
-   * `jlink`：指向与`jvex`相连的下一条边的指针。
-   * `info`（可选）：存储边的权重或其他信息。
-
-## Graph Traversal 图的遍历
-
-- Some applications requirevisiting every vertex in the graph exactly once.
-
-- The application may require thatvertices be visited in some special order based on graph topology
-  
-  - depth-first search
-  
-  - breadth-first search
-
-### Depth-First Search
-
-- Basic Idea
-  
-  - Startfrom a given vertex v and visit it. 
-  
-  - Visit the first neighbor, w, of v. Then visit the first neighbor of w that has notalready been visited, etc.
-  
-  - If a node with no unexamined neighbors, then backup to the last visited node andexamine its remaining neighbors.
-  
-  - The search continues until all nodes of the graph have been examined.
+# 
