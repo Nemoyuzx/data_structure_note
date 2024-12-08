@@ -1272,3 +1272,658 @@ void straightinsertsort  ( sqlist &R )
         数组-> 链表
     -   sequential search, move --> 0  
         线性搜索，移动—— > 0
+
+### shell sort 希尔排序
+
+-   Basic idea: group the list into several sublists and apply insertion sort in each sublist. Continue in this manner, finally apply insertion sort to all records.
+    -   First, group the list into several sublists by interval $d_1$
+    -   Apply insertion sort in each sublist.
+    -   Group the list again by interval $d_2(d_2<d_1<n)$, and apply insertion sort in each sublist.
+    -   Continue in this manner, until $d_t$=1.
+
+<img src="./images/420f5c5abac4bb459aaee2f95aaaf35f.gif" alt="img" style="zoom:67%;" />
+
+<img src="./images/21cea47aa7b4d5edddc7422cd3789c62.png" alt="img" style="zoom:67%;" />
+
+#### How to determine d
+
+-   At the very start of Shell sorting, d is larger and the size of each sublist is small. Insertion sort in every sublist is efficient. With d become more smaller, the size of every sublist is larger, but the sublists become rough ordered. Insertion sort in every sublist is also efficient. 
+-   How to determine d :
+    -   Shell:  
+    -   Knuth:  
+    -   dt is prime number….. In any case, dt = 1
+-   希尔取法：$d_1 = \lfloor n/2 \rfloor, \, d_{i+1} = \lfloor d_i/2 \rfloor, \, \ldots, \, d_t = 1$
+
+```c
+void Shellsort( ElementType A[ ], int N ) 
+{ 
+	int  i, j, Increment; 
+	ElementType  Tmp; 
+	for ( Increment = N / 2; Increment > 0; Increment /= 2 )  
+	/*h sequence */
+	for ( i = Increment; i < N; i++ ) { /* insertion sort */
+		Tmp = A[ i ]; 
+		for ( j = i; j >= Increment; j - = Increment ) 
+			if( Tmp < A[ j - Increment ] ) 
+				A[ j ] = A[ j - Increment ]; 
+			else 
+				break; 
+		A[ j ] = Tmp; 
+	} /* end for-I and for-Increment loops */
+}
+
+```
+
+-   The worst-case running time of Shellsort, using Shell’s increments, is O ( N2 ).
+
+#### Hibbard’s Increment Sequence xx取法
+
+-   **h****k** **=** **2****k** **-** **1 ---- consecutive increments have no common factors.**
+-   The worst-case running time of Shellsort, using Hibbard’s increments, is O ( N3/2 ). （a big step form O(N2)）
+
+Shellsort is a very simple algorithm, yet with an extremely complex analysis. It is good for sorting up to moderately large input (tens of thousands).
+
+## Exchange Sorting 交换排序
+
+### Bubble sort 冒泡排序
+
+-   Basic idea:
+    -   On the first pass: compare the first two elements, and interchange them when they are out of order. Next compare the second and third elements… until compare the last two elements.   
+        第一步: 比较前两个元素，当它们失序时进行交换。接下来比较第二和第三个元素，直到比较最后两个元素。
+        -   The largest element in the list will “sink” to the end of the list, since it will obviously be moved past all smaller elements.   
+            列表中最大的元素将“沉没”到列表的末尾，因为它显然将移动到所有较小的元素之后。
+        -   Some of the smaller items have “bubbled up” toward their proper positions nearer the front of the list.  
+            一些较小的项目已经“冒泡”向靠近列表前面的适当位置靠近。
+    -   Scan and compare the list again, leaving out the last item (already in its proper position).  
+        再次扫描并比较列表，省略最后一项(已经在其适当位置)。
+    -   Repeat it until there is not out of order in the list.  
+        重复它，直到列表中没有出错。
+
+basic 基本
+
+```c
+void  bubble_Sort (int a[], int n ){ 
+    for ( int i = n-1;  i>=1 ; i--){   
+		for (j=0; j<i;  j++){
+			if ( a[j] > a[j+1] ){ 
+				Swap ( j +1, j );	  
+			}
+		}  
+	}
+}
+
+```
+
+improve 改进
+
+```c
+void  bubble_Sort (int a[], int n ){ 
+    for ( int i = n-1, change =1;  i>=1 &&change; i--){   
+		change =0; 
+		for (j=0; j<i;  j++){
+			if ( a[j] > a[j+1] ) {
+				Swap ( j +1, j );	
+				change = 1;   //if exchange, set flag
+			}
+		} 
+    }
+}//If no swap all over the process, no need to continue bubbling 如果整个过程没有交换，就没有必要继续冒泡
+
+```
+
+![img](./images/c13373922b3862f43cd7e444c78176aa.gif)
+
+#### Analysis of Bubble Sort  冒泡排序算法分析
+
+- Time Complexity 时间复杂度: $\mathcal{O}(n^2)$
+   - Best case (when the list is already in order): Only $n-1$ comparisons and no element move.  
+       最佳情况(当列表已经按顺序排列时) : 只进行 $n-1 $比较，不移动元素。
+   - Worst case (when the list is in reverse order):  
+       最坏的情况(当列表顺序相反时) :
+       - Comparisons of keys 钥匙的比较: $\sum_{i=1}^{n-1} i = \frac{n(n-1)}{2}$
+       - Move element 移动元素: $\sum_{i=1}^{n-1} 3i = \frac{3n(n-1)}{2}$
+   - Space Complexity 空间复杂度: $\mathcal{O}(1)$
+   - Bubble Sorting is stable.  
+       气泡排序是稳定的
+
+### QuickSort 快速排序
+
+**任取待排序元素序列中的某元素作为基准值，按照该排序码将待排序集合分割成两子序列，左子序列中所有元素均小于基准值，右子序列中所有元素均大于基准值，然后最左右子序列重复该过程，直到所有元素都排列在相应位置上为止。**
+
+**Quicksort is fastest, uses a divide-and-conquer strategy**  
+快速排序是最快的，采用分而治之的策略
+
+-   具体思路是：
+
+    -   选定一个基准值，最好选定最左边或者最右边，选中间会给自己找麻烦。
+
+    -   确定两个指针left 和right 分别从左边和右边向中间遍历数组。
+
+    -   如果选最右边为基准值，那么left指针先走，如果遇到大于基准值的数就停下来。
+
+    -   然后右边的指针再走，遇到小于基准值的数就停下来。
+
+    -   交换left和right指针对应位置的值。
+
+    -   重复以上步骤，直到left = right ，最后将基准值与left(right)位置的值交换。
+
+<img src="./images/4d9e05d79724d6636efa8c0509c57415.gif" alt="img" style="zoom:67%;" />
+
+<img src="./images/fce62f4463c18e2520a4c2aa8d0114c4-1732497098497-19.png" alt="img" style="zoom:50%;" /><img src="./images/4c8e0cefcd04e5c60cfaaad892cf7a0c.png" alt="img" style="zoom:50%;" /><img src="./images/4be1b0b1538c9f265772a20e667f2179.png" alt="img" style="zoom:50%;" /><img src="./images/09dacd47568fb1bf09044dc44af2ef47-1732497160801-26.png" alt="img" style="zoom:50%;" /><img src="./images/31c77ab9ecc4db2fe9a650520bd5c9fa.png" alt="img" style="zoom:50%;" /><img src="./images/d8e850fa6af39fb1bc314538de5f7cf4.png" alt="img" style="zoom:50%;" />
+
+```c
+void Quicksort ( ElementType A[ ], int N ){
+	if ( N < 2 )  return;
+	pivot = pick any element in A[ ]; 选择 A []中的任何元素 //pivot 主元，枢纽，枢轴
+	Partition S = { A[ ] \ pivot } into two disjoint sets 分成两个不相交的集合:
+	A1={ a∈S | a ≤ pivot } and A2={ a∈S | a ≥ pivot };
+	A = Quicksort ( A1, N1) ∪ { pivot } ∪ Quicksort ( A2, N2);
+}
+//The best case T(N) = O(N log N)
+```
+
+-   在基准值的选择上，如果选择的基准值为恰好为最小值，会进行不必要的递归。在排序大量有序数据或者接近有序数据时，效率会比较低，甚至可能会出现程序崩溃的情况。这是因为在排序有序数据时，快速排序的递归调用次数过多，会导致栈溢出的情况。
+
+-   为了解决这些问题，这里有两种优化方法：
+    -   三数取中法选基准值：即在在起始位置，中间位置，末尾位置中选出中间值，作为基准值。
+    -   递归到小的子区间时，可以考虑使用插入排序：类似于二叉树，每个子树都会进行一次递归调用，越到下面递归调用会越多。为了减少递归调用，当到递归到下层时，我们可以使用其他的排序来替代。这里我们使用插入排序。
+
+
+```c
+/* Return median of Left, Center, and Right 返回左，中，右的中位数*/ 
+/* Order these and hide the pivot 排序这些，把中心点藏起来 */ 
+
+ElementType Median3( ElementType A[ ], int Left, int Right ) 
+{ 
+    int  Center = ( Left + Right ) / 2; 
+    if ( A[ Left ] > A[ Center ] ) 
+		Swap( &A[ Left ], &A[ Center ] ); 
+    if ( A[ Left ] > A[ Right ] ) 
+        Swap( &A[ Left ], &A[ Right ] ); 
+    if ( A[ Center ] > A[ Right ] ) 
+        Swap( &A[ Center ], &A[ Right ] ); 
+    /* Invariant 不变的: A[ Left ] <= A[ Center ] <= A[ Right ] */ 
+    Swap( &A[ Center ], &A[ Right - 1 ] ); /* Hide pivot */ 
+    /* only need to sort A[ Left + 1 ] … A[ Right – 2 ] */
+    return  A[ Right - 1 ];  /* Return pivot */ 
+}
+
+```
+
+```c
+void  Quicksort( ElementType A[ ], int N ) 
+{ 
+	Qsort( A, 0, N - 1 ); 
+	/* A: 	the array 	*/
+	/* 0: 	Left index 	*/
+	/* N – 1: Right index	*/
+}
+
+void  Qsort( ElementType A[ ], int Left, int Right ) {
+	int  i,  j; 
+    ElementType  Pivot; 
+    if ( Left + Cutoff <= Right ) {  /* if the sequence is not too short 如果序列不太短*/
+		Pivot = Median3( A, Left, Right );  /* select pivot 选择枢轴 */
+        i = Left;     j = Right – 1;  /* why not set Left+1 and Right-2? */
+        for( ; ; ) { 
+             while ( A[ ++i ] < Pivot ) {}  /* scan from left */
+             while ( A[ --j ] > Pivot ) {}  /* scan from right */
+             if ( i < j ) Swap( &A[ i ], &A[ j ] );  /* adjust partition 调整分区*/
+             else break;  /* partition done */
+        } 
+        Swap( &A[ i ], &A[ Right - 1 ] ); /* restore pivot */ 
+        Qsort( A, Left, i - 1 );      /* recursively sort left part  递归排序左边部分 */
+        Qsort( A, i + 1, Right );   /* recursively sort right part 递归排序正确的部分 */
+    }  /* end if - the sequence is long 结束如果-序列是长的*/
+    else /* do an insertion sort on the short subarray 对短子数组执行插入排序*/ 
+        InsertionSort( A + Left, Right - Left + 1 );
+}
+```
+
+-   Small Arrays 针对于小的数组
+    -   Problem: Quicksort is slower than insertion sort for small *N* ( $\le$ 20 ).  
+        问题: 对于小 N ($\le $20) ，快速排序比插入排序慢。
+    -   Solution: Cutoff when *N* gets small ( e.g. *N* = 10 ) and use other efficient algorithms (such as insertion sort).   
+        解决方案: 当 N 变小(例如 N = 10) 时截止，并使用其他有效算法(例如插入排序)。
+
+-   analysis
+    -   *T*( *N* ) = *T*( *i* ) + *T*( *N –* *i* *–* 1 ) + cN
+    -   The Worst Case: $T( N ) = O( N^2 )$ 
+    -   The Best Case: $T( N ) = O( N log N )$ 
+    -   The Average Case: $T( N ) = O( N log N )$ 
+
+完整代码
+
+```c
+// 快速排序前后指针法
+int PartSort3(int* a, int left, int right)
+{
+	int mid = MidIndex(a, left, right);
+	//将基准位置调整至最左边
+	Swap(&a[mid], &a[left]);
+	//1.将基准值定在left
+	int keyi = left;
+	int prev = left;
+	int cur =  left + 1;
+	while (cur <= right)
+	{
+		if (a[cur] < a[keyi] && ++prev != cur)
+		{
+			Swap(&a[prev], &a[cur]);
+		}
+		cur++;
+		
+	}
+	Swap(&a[prev], &a[keyi]);
+ 
+	//2.将基准值定在right
+	/*int keyi = right;
+	int prev = left - 1;
+	int cur = prev + 1;
+	while (cur <= right)
+	{
+		if (a[cur] < a[keyi] && ++prev != cur)
+		{
+			Swap(&a[cur], &a[prev]);
+		}
+		cur++;
+	}
+	Swap(&a[keyi], &a[++prev]);
+	return prev;*/
+}
+ 
+void QuickSort(int* a, int left, int right)
+{
+    assert(a);
+	if (left >= right)
+	{
+		return;
+	}
+ 
+	//小区间优化，，减少递归次数
+	if (right - left + 1 < 10)
+	{
+		InsertSort(a + left, right -left + 1);
+	}
+	else
+	{
+		int keyi = PartSort3(a, left, right);
+		QuickSort(a, left, keyi - 1);
+		QuickSort(a, keyi + 1, right);
+	}
+ 
+}
+```
+
+## selection sorting 选择排序
+
+### Selection sorting 选择排序
+
+-   Basic idea: 
+    -   make a number of passes through the list or a part of the list and, on each pass, select one element to be correctly positioned.  
+        对列表或列表的一部分进行多次传递，并在每次传递时选择一个要正确定位的元素。
+    -   At the i- th stage, the sorted sublist is $[R’_1,R’_2….R’_{i-1} ]$, un-sorted sublist is $[R_i,R_{i+1}…,R_n]$.  
+        Scan the unsorted sublist to locate the smallest element and find it in position.  
+        Interchange this element with the i-th element $(R_i)$.  
+        在第 i 阶段，排序的子列表是$[R’_1,R’_2….R’_{i-1} ]$，未排序的子列表是 $[R_i,R_{i+1}…,R_n]$。  
+        扫描未排序的子列表以找到最小的元素并找到它的位置。  
+        将这个元素与 i-th 元素$(R_i)$交换。
+    -   **每一趟从待排序的数据元素中选出最小（或最大）的一个元素，顺序放在已排好序的数列的最后，直到全部待排序的数据元素排完。**
+
+```c
+void   simpleselectionsort ( sqlist   &R)
+{
+     for   ( i = 1 ; i < R.length ; i++ )
+     {
+          for  (k=i , j=i+1 ; j <= R.length ; j++) 
+                 if  (R.elem[j].key<R.elem[k].key)  k=j;
+          if  ( k != i )  R.elem [ i ] ←→ R.elem [ k ];
+      }
+}
+
+```
+
+<img src="./images/selectionSort.gif" alt="img" style="zoom:67%;" />
+
+-   analysis
+    -   Time complexity ：$O(n^2)$
+        -   Movement of elements
+            -   Best case: $0$
+            -   Worst case: $3(n-1)$
+        -   Comparison:
+            -   On the first pass through the list, the first item is compared with each of the n - 1 elements that follow it;   
+                在第一次遍历列表时，将第一个项与后面的每个 n-1元素进行比较;  
+                On the second pass, the second element is compared with the n - 2 elements following it, etc.   
+                在第二次传递时，将第二个元素与后面的 n-2个元素进行比较，等等。
+            -   A total of $(n-1) + (n-2) + … + 1 = \frac{n*(n-1)}{2}$ comparisons thus required for any list  
+                总共 $(n-1) + (n-2) + ... + 1 = \frac { n * (n-1)}{2} $比较，因此对于任何列表都是必需的
+    -   Space complexity: $O(1)$
+    -   Selection Sort is not stable (2  2  1 -> 1  2  2).  不稳定的
+
+### HeapSort 堆排序
+
+[【算法】排序算法之堆排序 - 知乎](https://zhuanlan.zhihu.com/p/124885051)
+
+① **最大堆调整（Max_Heapify）**：将堆的末端子节点作调整，使得子节点永远小于父节点
+② **创建最大堆（Build_Max_Heap）**：将堆所有数据重新排序
+③ **堆排序（HeapSort）**：移除位在第一个数据的根节点，并做最大堆调整的递归运算
+
+-   heap 堆
+
+    -   Definition: A heap is a list $(R_1,R_2….R_n)$, in which each entry contains a key,$ (K_1,K_2…,K_n)$, and every $K_i$ in the list satisfies:  
+        定义: 堆是一个列表 $(R _ 1，R _ 2... . R _ n) $，其中每个条目包含一个键 $(K _ 1，K _ 2... ，K _ n) $，列表中的每个 $K _ i $满足:
+        $$
+        \left\{\begin{matrix}
+        k_i \le k_{2i} \\
+        k_i \le k_{2i+1}
+        \end{matrix}\right.
+        or 
+        \left\{\begin{matrix}
+        k_i \ge  k_{2i} \\
+        k_i \ge k_{2i+1}
+        \end{matrix}\right.
+        $$
+
+        -   大根堆:每个节点的值都大于或者等于他的左右孩子节点的值
+        -   小根堆:每个结点的值都小于或等于其左孩子和右孩子结点的值 
+
+    -   A heap is analogous to a complete binary tree, but algorithms on heaps always use a list.  
+        堆类似于完整的二叉树，但是堆上的算法总是使用列表。
+
+    -   The root of the tree must be the largest (smallest) element in the list.  
+        树的根必须是列表中最大(最小)的元素。
+
+-   Basic idea:
+
+    -   The list is regarded as two parts: a sorted sublist and a un-sorted sublist. Initially, the sorted sublist is [ ], un-sorted sublist is $[R_1,R_2…,R_n]$.  
+        该列表被视为两个部分: 一个排序的子列表和一个未排序的子列表。最初，排序的子列表是[] ，未排序的子列表是 $[ R _ 1，R _ 2... ，R _ n ] $。
+    -   Regarding the un-sorted list $[R_1,R_2…,R_n]$ as a complete binary tree stored in an array, and convert the complete binary tree to a heap. Then the root of the tree, R[1], is the largest (smallest) element in the list.  
+        将未排序的列表 $[ R _ 1，R _ 2... ，R _ n ] $视为存储在数组中的完整二叉树，并将完整二叉树转换为堆。然后树的根 R [1]是列表中最大(最小)的元素。
+    -   Swap R[1] with the end element of the un-sorted sublist R[n], R[1] is then put into sorted sublist, and the length of un-sorted sublist is decremented.   
+        与未排序子列表 R [ n ]的结束元素交换 R [1] ，然后将 R [1]放入已排序子列表，并减少未排序子列表的长度。
+    -   Convert the un-sorted sublist to a heap.  
+        将未排序的子列表转换为堆。
+    -   Continue in this manner, until the un-sorted sublist is empty.   
+        以这种方式继续，直到未排序的子列表为空。
+
+1.   首先将待排序的数组构造成一个大根堆，此时，整个数组的最大值就是堆结构的顶端
+2.   将顶端的数与末尾的数交换，此时，末尾的数为最大值，剩余待排序数组个数为n-1
+3.   将剩余的n-1个数再构造成大根堆，再将顶端数与n-1位置的数交换，如此反复执行，便能得到有序数组
+4.   每一遍大根堆（小根堆）更新后都要将根的值与上一次更新末位的前一位交换
+5.   注意:升序用大根堆，降序就用小根堆(默认为升序)
+
+从最后一棵子树开始，从后往前调整，向下过滤（从上往下）直到所有节点的子节点都比自己要大或小。（调整为大根堆）
+
+![动图](./images/v2-b7907d351809293c60658b0b87053c66_b.webp)
+
+```c
+//For H.r[s..m], all elements satisfy the definition of heap except H.r[s]
+// Adjust H.r[s..m] to MaxHeap
+typedef SqList HeapType;
+void HeapAdujst(HeapType &H, int s, int m)  {  
+	rc=H.r[s];
+	for(j=2*s; j<=m; j*=2) {  // travel along the larger child
+		if(j<m && H.r[j].key<=H.r[j+1].key)  
+			j++; 			// j is the larger child
+		if(rc.key>=H.r[j].key) 
+            break; // if not (child > parent), continue
+		H.r[s]=H.r[j];      //parent is replaced with the larger child
+		s=j; // for next iteration
+    }
+	H.r[s]=rc;
+}
+
+```
+
+-   Build Heap 创建堆
+    -   Apply the Percolate-Down algorithm to tree that root number from $\left \lfloor \frac{2}{n}  \right \rfloor $ to 1, and convert these trees into heaps, respectively.  
+        应用 Percolate-Down 算法将根号从 $\left \lfloor \frac{2}{n}  \right \rfloor $转换为1，并将这些树分别转换为堆。
+    -   $\left \lfloor \frac{2}{n}  \right \rfloor $ is the last node which have children, and the children are heaps (because they are leaf nodes)  
+        $\left \lfloor \frac{2}{n}  \right \rfloor $ 是最后一个有子节点的节点，子节点是堆(因为它们是叶节点)
+    -   The Percolate-Down algorithm is applied to nodes $\left \lfloor \frac{2}{n}  \right \rfloor ,\left \lfloor \frac{2}{n}  \right \rfloor -1,...,1$ ——Down-Up  
+        本文将 Percolate-Down 算法应用于节点 $\left \lfloor \frac{2}{n}  \right \rfloor  ，\left \lfloor \frac{2}{n}  \right \rfloor   -1，... ，1 $ー上下颠倒
+
+<img src="./images/v2-acbdde7cf6f0426e693187c4899716e7_1440w.png" alt="img" style="zoom:50%;" />![img](./images/v2-6db33bd4ddb7937ca5946283ef2acc5d_1440w.jpg)
+
+```c
+void HeapSort( HeapType &H )
+{   
+	for( i=H.length/2; i>0; i--)
+	HeapAdjust( H, i, H.length );  //H.r[1..H.length] is built to MaxHeap
+    for( i=H.length; i>1; i--){   
+		H.r[1]<->H.r[i];         //exchange H.r[1] with H.r[i]
+		HeapAdjust( H, 1, i-1 );   //H.r[1..i-1] is adjusted to MaxHeap
+    }
+}
+
+```
+
+-    Analysis
+
+    -   Time complexity ：$O(NlogN)$
+    -   Space complexity : $O(1)$
+    -   Heapsort is not stable.  Heapsort 不稳定。
+    -   Heapsort is suitable only for contiguous lists.  Heapsort 仅适用于连续列表。
+
+    **Note:** **Since the work to build initial heap requires a lot of comparisons, it is not suitable for small array.**   
+    注意: 由于构建初始堆需要进行大量的比较，因此不适合小数组。
+
+## MergeSort  归并排序
+
+-   Sorting schemes are   
+    分类方案是
+    -   internal--designed for data items stored in main memory   
+        内部——专为存储在主存中的数据项设计
+    -   external--designed for data items stored in secondary memory.   
+        外部——专为存储在辅助存储器中的数据项设计。
+-   Previous sorting schemes are all internal sorting:  
+    以前的分类方案都是内部分类:
+    -   required direct access to list elements(not possible for sequential files)  
+        需要直接访问列表元素(对于顺序文件不可能)
+    -   made many passes through the list(not practical for files)  
+        在列表中进行了多次传递(不适用于文件)
+-   Mergesort can be used both as an internal and an external sort.   
+    合并排序既可以用作内部排序，也可以用作外部排序。
+    -   basic operation is merging, that is, combining two lists that have previously been sorted so that the resulting list is also sorted.   
+        基本操作是合并，即合并两个先前已排序的列表，以便生成的列表也进行排序。
+
+We chop the list into two sublists of sizes as nearly equal as possible and then sort them separately. Afterward, we carefully merge the two sorted sublists into a single sorted list.  
+我们将列表分割成两个大小尽可能相等的子列表，然后分别对它们进行排序。然后，我们小心地将两个已排序的子列表合并到一个单独的已排序列表中。
+
+-   归并排序算法有两个基本的操作，一个是**分**，也就是把原数组划分成两个子数组的过程。另一个是**治**，它将两个有序数组合并成一个更大的有序数组。
+
+    -   将待排序的线性表不断地切分成若干个子表，直到每个子表只包含一个元素，这时，可以认为只包含一个元素的子表是有序表。
+    -   将子表两两合并，每合并一次，就会产生一个新的且更长的有序表，重复这一步骤，直到最后只剩下一个子表，这个子表就是排好序的线性表。
+
+    <img src="./images/79510ba165786116c3a394cf6c4ee6f9.png" alt="img" style="zoom:67%;" />
+
+<img src="./images/1c9517428afa0244546c0e08a8e7c3fe.gif" alt="img" style="zoom:67%;" />
+
+```c
+void MSort( ElementType A[ ], ElementType TmpArray[ ], int Left, int Right ) {
+    int  Center; 
+    if ( Left < Right ) {  /* if there are elements to be sorted */
+	Center = ( Left + Right ) / 2; 
+	MSort( A, TmpArray, Left, Center ); 	/* T( N / 2 ) */
+	MSort( A, TmpArray, Center + 1, Right ); 	/* T( N / 2 ) */
+	Merge( A, TmpArray, Left, Center + 1, Right );  /* O( N ) */
+    } 
+} 
+
+void Mergesort( ElementType A[ ], int N ){  //only a driver for Msort
+    ElementType  *TmpArray;  /* need O(N) extra space */
+    TmpArray = malloc( N * sizeof( ElementType ) ); 
+    if ( TmpArray != NULL ) { 
+	MSort( A, TmpArray, 0, N - 1 ); 
+	free( TmpArray ); 
+    } 
+    else  FatalError( "No space for tmp array!!!" ); 
+}
+
+/* Lpos = start of left half, Rpos = start of right half */ 
+void Merge( ElementType A[ ], ElementType TmpArray[ ], int Lpos, int Rpos, int RightEnd ) {
+    int  i, LeftEnd, NumElements, TmpPos; 
+    LeftEnd = Rpos - 1; 
+    TmpPos = Lpos; 
+    NumElements = RightEnd - Lpos + 1; 
+    while( Lpos <= LeftEnd && Rpos <= RightEnd ) /* main loop */ 
+        if ( A[ Lpos ] <= A[ Rpos ] ) 
+	TmpArray[ TmpPos++ ] = A[ Lpos++ ]; 
+        else 
+	TmpArray[ TmpPos++ ] = A[ Rpos++ ]; 
+    while( Lpos <= LeftEnd ) /* Copy rest of first half */ 
+        TmpArray[ TmpPos++ ] = A[ Lpos++ ]; 
+    while( Rpos <= RightEnd ) /* Copy rest of second half */ 
+        TmpArray[ TmpPos++ ] = A[ Rpos++ ]; 
+    for( i = 0; i < NumElements; i++, RightEnd - - ) 
+         /* Copy TmpArray back */ 
+        A[ RightEnd ] = TmpArray[ RightEnd ]; 
+}
+
+```
+
+-   analysis
+    -   Time Complexity : $O(NlogN)$
+    -   Space CompIexity : $O(N)$
+    -   MergeSort is stable.  稳定
+
+## Bucket Sort  桶排序
+
+![动图](./images/v2-b29c1a8ee42595e7992b6d2eb1030f76_b.gif)
+
+<img src="./images/v2-ff4cdccdb1ff6b90ecdb3fc4d361f725_1440w.jpg" alt="img" style="zoom:67%;" />
+
+桶排序假设待排序的一组数均匀独立的分布在一个范围中，并将这一范围划分成几个子范围（桶）。
+
+然后**基于某种映射函数f ，将待排序列的关键字 k 映射到第i个桶中 (即桶数组B 的下标i)** ，那么该关键字k 就作为 B[i]中的元素 (每个桶B[i]都是一组大小为N/M 的序列 )。
+
+**接着将各个桶中的数据有序的合并起来** : 对每个桶B[i] 中的所有元素进行比较排序 (可以使用快排)。然后依次枚举输出 B[0]….B[M] 中的全部内容即是一个有序序列。
+
+>   补充： 映射函数一般是 f = array[i] / k; k^2 = n; n是所有元素个数
+
+为了使桶排序更加高效，我们需要做到这两点：
+
+>   1、在额外空间充足的情况下，尽量增大桶的数量；
+>   2、使用的映射函数能够将输入的 N 个数据均匀的分配到 K 个桶中；
+
+同时，对于桶中元素的排序，选择何种比较排序算法对于性能的影响至关重要。
+
+```c
+Algorithm
+{
+    initialize count[ ];
+    while (read in a student’s record)
+        insert to list count[stdnt.grade];
+    for (i=0; i<M; i++) {
+        if (count[i])
+            output list count[i];
+    }
+}
+
+```
+
+```c
+#include<iterator>
+#include<iostream>
+#include<vector>
+using namespace std;
+const int BUCKET_NUM = 10;
+struct ListNode{
+	explicit ListNode(int i=0):mData(i),mNext(NULL){}
+	ListNode* mNext;
+	int mData;
+};
+ListNode* insert(ListNode* head,int val){
+	ListNode dummyNode;
+	ListNode *newNode = new ListNode(val);
+	ListNode *pre,*curr;
+	dummyNode.mNext = head;
+	pre = &dummyNode;
+	curr = head;
+	while(NULL!=curr && curr->mData<=val){
+		pre = curr;
+		curr = curr->mNext;
+	}
+	newNode->mNext = curr;
+	pre->mNext = newNode;
+	return dummyNode.mNext;
+}
+ListNode* Merge(ListNode *head1,ListNode *head2){
+	ListNode dummyNode;
+	ListNode *dummy = &dummyNode;
+	while(NULL!=head1 && NULL!=head2){
+		if(head1->mData <= head2->mData){
+			dummy->mNext = head1;
+			head1 = head1->mNext;
+		}else{
+			dummy->mNext = head2;
+			head2 = head2->mNext;
+		}
+		dummy = dummy->mNext;
+	}
+	if(NULL!=head1) dummy->mNext = head1;
+	if(NULL!=head2) dummy->mNext = head2;
+	
+	return dummyNode.mNext;
+}
+void BucketSort(int n,int arr[]){
+	vector<ListNode*> buckets(BUCKET_NUM,(ListNode*)(0));
+	for(int i=0;i<n;++i){
+		int index = arr[i]/BUCKET_NUM;
+		ListNode *head = buckets.at(index);
+		buckets.at(index) = insert(head,arr[i]);
+	}
+	ListNode *head = buckets.at(0);
+	for(int i=1;i<BUCKET_NUM;++i){
+		head = Merge(head,buckets.at(i));
+	}
+	for(int i=0;i<n;++i){
+		arr[i] = head->mData;
+		head = head->mNext;
+	}
+}
+```
+
+-   analysis
+
+    -   平均时间复杂度：$O(n + k)$ 
+    -   最佳时间复杂度：$O(n + k)$ 
+    -   最差时间复杂度：$O(n ^ 2)$ 
+    -   空间复杂度：$O(n \times k)$ 
+    -   稳定性：稳定
+>   $k^2 = n$
+
+### radix sort 基数排序
+
+![image-20241205103743138](./images/image-20241205103743138.png)
+
+![image20](./images/image20.gif)
+
+-   analysis
+    -   Time complexity （average and worst case）:  $O ( d (n+rd) )$ 
+        -   d is num of keys; rd is num of buckets； n allocations, and rd collections.  
+            D 是键的数量; rd 是桶的数量; n 分配和 rd 集合。
+    -   Space complexity: $O(n+rd)$ 
+        -   O(n) space for pointer fields (Radix sort is usually implemented in linked lists).  
+            指针字段的 O (n)空间(基数排序通常在链表中实现)。
+        -   O(rd) space for head pointers of each bucket.  
+            每个桶头部指针的 O (rd)空间。
+    -   Radix Sort is stable.  
+        基数排序是稳定的。
+
+## summary
+
+### Summary of sorting analysis 分类分析摘要
+
+| Sorting Algorithm        | Average Case | Worst Case  | Space Complexity | Stability  |
+| ------------------------ | ------------ | ----------- | ---------------- | ---------- |
+| Insertion Sort  插入排序 | $O(n^2)$     | $O(n^2)$    | $O(1)$           | Stable     |
+| Bubble Sort  冒泡排序    | $O(n^2)$     | O(n^2)      | O(1)             | Stable     |
+| Selection Sort  选择排序 | O(n^2)       | O(n^2)      | O(1)             | Not stable |
+| Shell Sort  希尔排序     | O(n^d)       | O(n^2)      | O(1)             | Not stable |
+| Quick Sort  快速排序     | O(n log n)   | O(n^2)      | O(log n)         | Not stable |
+| Heap Sort  堆排序        | O(n log n)   | O(n log n)  | O(1)             | Not stable |
+| Merge Sort  归并排序     | O(n log n)   | O(n log n)  | O(n)             | Stable     |
+| Radix Sort  基数排序     | O(d (n+rd))  | O(d (n+rd)) | O(n+rd)          | Stable     |
+
+### Sorting Summary 排序小结
