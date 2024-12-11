@@ -89,8 +89,7 @@ https://www.bilibili.com/video/BV19k4y1Q7Gj
 ```c
 #define maxvtxnum user_supply
 typedef struct {
-	Edgetype    
-	arc[maxvtxnum][maxvtxnum];
+	Edgetype arc[maxvtxnum][maxvtxnum];
 	int vtxnum, arcnum;
 } graph;                                     
 ```
