@@ -284,14 +284,13 @@ int binarySearch(KeyType K, ListType ST[], int n) {
     -   if using binary search in indexing table, the average search length will be  
         如果在索引表中使用二进制搜索，则平均搜索长度将为
         $$
-        \log_2 \left( 1 + \frac{n}{s} \right) - 1 + \frac{s+1}{2}
+        \log_2 \left( 1 + \frac{n}{s} \right) - 1 + \frac{s+1}{2}
         $$
         
-
     -   if using sequential search in indexing table, the average search length will be  
         如果在索引表中使用线性搜索，平均搜索长度将为
         $$
-        \frac{b+1}{2} + \frac{s+1}{2} = \frac{s^2 + 2s + n}{2s}
+        \frac{b+1}{2} + \frac{s+1}{2} = \frac{s^2 + 2s + n}{2s}
         $$
 
 ### Searching comparison  比较

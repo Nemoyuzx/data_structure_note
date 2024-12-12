@@ -60,9 +60,9 @@ https://www.bilibili.com/video/BV19k4y1Q7Gj
 
 * Cycle 环路/回路 ::= simple path with $v_p = v_q$
 
-* $v_i \text{ and } v_j$ in an undirected G are connected if there is a path from $v_i$ to $v_j$ (and hence there is also a path from $v_i$ to $v_j$ )
+    * $v_i \text{ and } v_j$ in an undirected G are connected if there is a path from $v_i$ to $v_j$ (and hence there is also a path from $v_i$ to $v_j$ )
 
-* $\text{An undirected graph } G \text{ is \textbf{connected} if every pair of distinct } v_i \text{ and } v_j \text{ are connected}$
+    * $\text{An undirected graph } G \text{ is \textbf{connected} if every pair of distinct } v_i \text{ and } v_j \text{ are connected}$
 
 * (Connected) Component of an undirected G 连通分量 ::= the maximal connected subgraph
 
@@ -75,9 +75,9 @@ https://www.bilibili.com/video/BV19k4y1Q7Gj
 * Degree( v ) 度 ::= number of edges incident to v. For a directed G, we have in-degree and out-degree.
   入度in-degree 出度out-degree
   ![14e802904c0a421a8154ff9b42c52c3c](/C:\Users\20999\Desktop\data structure\data_structure_note/images/14e80290-4c0a-421a-8154-ff9b42c52c3c.png)
-  
+
 * Given G with n vertices and e edges, then
-  
+
   $$
   e = \left( \sum_{i=0}^{n-1} d_i \right) / 2 \quad \text{where} \quad d_i = \text{degree}(v_i) 
   $$
@@ -111,7 +111,7 @@ Note: For a weighted digraph, the weight of the edge from vertex i  to vertex j
   * The degree of a vertex is $\sum_{j=1}^n A[i][j]$
   
   * For adirected digraph, the sum of 1 (or true) in row i of the adjacency matrix is the out-degree of the ith vertex.  
-      对于有向有向图，邻接矩阵第i行的1(或 true)之和就是第i个顶点的出度。
+      对于有向图，邻接矩阵第i行的1(或 true)之和就是第i个顶点的出度。
 
   * The sum of the entries in the ith column is its in-degree.  
       第 i 列中的条目之和是它的度数。
@@ -209,8 +209,6 @@ Only for undirected G 只对无向 G 有效
 
 在邻接表中，容易求得顶点和边的各种信息，但在邻接表中求两个顶点之间是否存在边而对边执行删除等操作时，需要分别在两个顶点的边表中遍历，效率较低。
 
-<img src="/C:\Users\20999\Desktop\data structure\data_structure_note/images/3a171699-8bf3-4fdf-b3fc-11ddcdc6789c.png" alt="3a1716998bf34fdfb3fc11ddcdc6789c" style="zoom:50%;" />
-
 ```c
 #define maxvtxnum user_supply
 
@@ -227,7 +225,7 @@ typedef struct   {
 vnode admlist[maxvtxnum];
 ```
 
-<img src="/C:\Users\20999\Desktop\data structure\data_structure_note/images/d7d5c1d5-a536-4fcf-9c73-e1350aec2cf8.png" alt="d7d5c1d5a5364fcf9c73e1350aec2cf8" style="zoom:67%;" /><img src="/C:\Users\20999\Desktop\data structure\data_structure_note/images/54e1116f-df3b-4017-90cc-4d0ee2030367.png" alt="54e1116fdf3b401790cc4d0ee2030367" style="zoom:67%;" />
+<img src="/C:\Users\20999\Desktop\data structure\data_structure_note/images/3a171699-8bf3-4fdf-b3fc-11ddcdc6789c.png" alt="3a1716998bf34fdfb3fc11ddcdc6789c" style="zoom:50%;" /><img src="/C:\Users\20999\Desktop\data structure\data_structure_note/images/d7d5c1d5-a536-4fcf-9c73-e1350aec2cf8.png" alt="d7d5c1d5a5364fcf9c73e1350aec2cf8" style="zoom:67%;" /><img src="./images/54e1116f-df3b-4017-90cc-4d0ee2030367-1733924987420-1.png" alt="54e1116fdf3b401790cc4d0ee2030367" style="zoom:67%;" />
 
 #### 邻接多重表的结构
 
@@ -238,7 +236,6 @@ vnode admlist[maxvtxnum];
    * `first_edge`：指向该顶点相关边的链表的头指针。
    
 2. **边表**：边表用于存储无向图中的边，每条边连接两个顶点。边表的节点结构一般包括：
-   
    * `ivex`：边的一个顶点。
    * `jvex`：边的另一个顶点。
    * `ilink`：指向与`ivex`相连的下一条边的指针。
@@ -277,12 +274,6 @@ vnode admlist[maxvtxnum];
   DFS 的核心思想是尽可能深入地探索图的分支。从起始节点开始，沿着一条路径一直向前，直到无法继续为止，然后回溯到上一个节点，探索其他未访问的路径。这种方法类似于迷宫中一直走到底，如果遇到死路就回头寻找其他路径。
   
 * algorithm 算法
-  
-  * 非递归：
-  
-      * 用栈
-  
-      ![1.gif](./images/90f80e5f92d149b8b81f8c2e2fb8fd34.gif)
   
   * 递归
   
@@ -369,8 +360,9 @@ vnode admlist[maxvtxnum];
               访问 w
           * Add w to the queue  
               将w添加到队列中
-    
-    ![bfs分析动图(队列))](./images/ed6e9825ccbe1478586fc20793d7b187-1732344332360-13.gif)
+      
+      ![bfs分析动图(队列))](./images/ed6e9825ccbe1478586fc20793d7b187-1732344332360-13.gif)
+      
     
     
     
@@ -462,7 +454,7 @@ vnode admlist[maxvtxnum];
 ```c
 void Topsort( Graph G ) {
     int Counter;
-    Vertex V, W;
+    Vertex V, W;c
     for ( Counter = 0; Counter < NumVertex; Counter++ ) {
         V = FindNewVertexOfDegreeZero();  // 复杂度为 O(|V|)
         if ( V == NotAVertex ) {
@@ -620,7 +612,8 @@ $$
 
 ### Single-Source Shortest-Path Problem 单源最短路问题
 
-Given as input a weighted graph, G = ( V, E ), and a distinguished vertex, *s*, find the shortest weighted path from *s* to every other vertex in G.给定一个加权图 G = (V，E)和一个可区分的顶点 s 作为输入，求出从 s 到 G 中每个顶点的最短加权路径。
+Given as input a weighted graph, G = ( V, E ), and a distinguished vertex, *s*, find the shortest weighted path from *s* to every other vertex in G.  
+给定一个加权图 G = (V，E)和一个可区分的顶点 s 作为输入，求出从 s 到 G 中每个顶点的最短加权路径。
 
 <img src="/C:\Users\20999\Desktop\data structure\data_structure_note/images/image-20241111120941833.png" alt="image20241111120941833" style="zoom:67%;" />
 
@@ -802,14 +795,12 @@ void Dijkstra( Table T )
     Vertex  V, W;
     for ( ; ; ) {
         V = unknown vertex with the smallest distance;
-        if ( V == NotAVertex )
-	break; 
+        if ( V == NotAVertex ) break; 
         T[ V ].Known = true;
         for ( each W adjacent to V )
 	if ( !T[ W ].Known ) 
 	    if ( T[ V ].Dist + Cvw < T[ W ].Dist ) {
-	    	Decrease( T[ W ].Dist  to
-			 T[ V ].Dist + Cvw );
+	    	Decrease( T[ W ].Dist  to T[ V ].Dist + Cvw );
 		T[ W ].Path = V;
 	    } /* end-if update W */
     } /* end-for( ; ; ) */
