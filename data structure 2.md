@@ -303,7 +303,7 @@ int binarySearch(KeyType K, ListType ST[], int n) {
 
 ## Binary Search Trees  二叉树搜索
 
-### B- Tree  多路查找树  （索引表）
+### B- Tree  多路平衡查找树  （索引表）
 
 -   Goals of Indexing  索引的目标
     -   Store large files  
@@ -320,13 +320,14 @@ int binarySearch(KeyType K, ListType ST[], int n) {
         从根到叶的每条路径应该覆盖几个磁盘页
 -   The B-Tree is now the standard file organization for applications requiring insertion, deletion, and key range searches.  
     B-Tree 现在是需要插入、删除和键范围搜索的应用程序的标准文件组织。
+-   **不要求代码**
 
 #### Definition 定义
 
 1.  **B树的定义**
     -   一棵m阶的B树具有以下属性：
         1.  根节点要么是叶子节点，要么至少有两个子节点。
-        2.  除根节点以外的每个节点都包含 $k−1$个值和 $k$ 个子节点，其中 $\lceil m/2 \rceil \leq k \leq m$。
+        2.  **除根节点以外的每个节点都包含 $k−1$个值和 $k$ 个子节点，其中 $\lceil m/2 \rceil \leq k \leq m$    $\lceil m/2 \rceil-1 \leq k-1 \leq m-1$。**
         3.  所有叶子节点都位于树的同一层，因此这棵树总是高度平衡的。
 2.  **B树节点设计**
     -   B树节点的大小通常被选择为与磁盘块的大小匹配。
@@ -352,5 +353,168 @@ int binarySearch(KeyType K, ListType ST[], int n) {
     通常选择 B-Tree 节点来匹配磁盘块的大小。
 -   B-Trees guarantee that every node in the tree will be full at least to a certain minimum percentage. This improves space efficiency while reducing the typical number of disk fetches necessary during a search or update operation.  
     树保证树中的每个节点至少在一定的最小百分比内是满的。这提高了空间效率，同时减少了搜索或更新操作期间所需的磁盘读取的典型数量。
+-   m阶B-Tree
 
-B-Tree Search
+    1.   每个节点最多有m个孩子。 
+
+    2.   除了根节点和叶子节点外，其它每个节点至少有Ceil(m/2)个孩子。 
+    3.   若根节点不是叶子节点，则至少有2个孩子 
+    4.   所有叶子节点都在同一层，且不包含其它关键字信息 
+    5.   每个非终端节点包含n个关键字信息（P0,P1,…Pn, k1,…kn） 
+    6.   关键字的个数n满足：ceil(m/2)-1 <= n <= m-1 
+    7.   ki(i=1,…n)为关键字，且关键字升序排序。 
+    8.   Pi(i=1,…n)为指向子树根节点的指针。P(i-1)指向的子树的所有节点关键字均小于ki，但都大于k(i-1)
+
+#### B-Tree Search  查找
+
+-   Search in a B-Tree is similar with search in BST.  
+    B-Tree 中的搜索与 BST 中的搜索类似。
+    -   Search keys in current node. If search key is found, then return record. If current node is a leaf node and key is not found, then report unsuccessful.  
+        在当前节点中搜索键。如果找到搜索键，则返回记录。如果当前节点是叶节点，并且找不到键，则报告不成功。
+    -   Otherwise, follow the proper branch and repeat the process.  
+        否则，按照正确的分支重复该过程。
+
+#### B- Tree Insertion  插入
+
+-   To insert value X into a B-tree, there are 3 steps:  
+    要将 X 值插入到 B 树中，有3个步骤:
+
+    -   using the SEARCH procedure for M-way trees (described above) find the leaf node to which X should be added.   
+        使用 M-way 树的 SEARCH 过程(如上所述)查找应该添加 X 的叶子节点。
+
+    -   add X to this node in the appropriate place among the values already there. Being a leaf node there are no subtrees to worry about.   
+        在已经存在的值之间的适当位置将 X 添加到这个节点。作为一个叶节点，没有子树需要担心。
+
+    -   if there are M-1 or fewer values in the node after adding X, then we are finished. If there are M nodes after adding X, we say the node has *overflowed*. To repair this, we split the node into three parts:  
+        如果在添加 X 之后节点中有 M-1或更少的值，那么我们就完成了。如果在添加 X 之后有 M 个节点，我们说该节点已经 * 溢出 * 。为了修复这个问题，我们将节点分成三部分:
+
+        1.   Left: the first (M-1)/2 values   
+             左: 第一个(M-1)/2值
+
+        2.   Middle: the middle value (position 1+((M-1)/2)   
+             中间: 中间值(位置1 + ((M-1)/2)
+
+        3.   Right: the last (M-1)/2 values   
+             右: 最后一个(M-1)/2值
+
+-   溢出就拆往上挪，上面的溢出就继续拆完往上挪（可以有新根）
+
+#### B- Tree Deletion  删除
+
+有下溢出
+
+-   How many values might there be in this combined node?   
+    这个组合节点中可能有多少个值？
+    -   The parent node contributes 1 value.  
+        父节点贡献1个值。
+    -   The node that underflowed contributes exactly (M-1)/2-1 values.   
+        向下流动的节点恰好提供(M-1)/2-1值。
+    -   The neighbouring node contributes somewhere between (M-1)/2 and (M-1) values.   
+        相邻节点的贡献介于(M-1)/2和(M-1)值之间。
+-   Case 1
+    -   Suppose that the neighbouring node contains more than (M-1)/2 values. In this case, the total number of values in the combined node is strictly greater than 1 + ((M-1)/2 - 1) + ((M-1)/2)  
+        假设相邻节点包含多于(M-1)/2的值。在这种情况下，组合节点中的值总数严格大于1 + ((M-1)/2-1) + ((M-1)/2)
+    -   相邻节点里的个数-1后仍然满足，挪过来一个
+-   Case 2
+    -   Suppose, on the other hand, that the neighbouring node contains exactly (M-1)/2 values. Then the total number of values in the combined node is 1 + ((M-1)/2 - 1) + ((M-1)/2) = (M-1).   
+        另一方面，假设相邻节点恰好包含(M-1)/2值。然后组合节点中的值总数为1 + ((M-1)/2-1) + ((M-1)/2) = (M-1)。
+    -   相邻接节点里的个数-1后不满足，直接将本节点、父节点中间值、相邻节点合并再一起替换掉相邻节点的指针
+
+### B+tree B+树
+
+![索引](./images/20160202205105560.png)
+
+关键字=节点值
+
+-   The most commonly implemented form of the B-Tree is the B+-Tree.  
+    B-Tree 最常用的实现形式是 B +-Tree。
+-   Internal nodes of the B+-Tree do not store record -- only key values to guide the search.  
+    B +-Tree 的内部节点不存储记录——只存储用于指导搜索的键值。
+-   Leaf nodes store real records.  
+    叶节点存储真实记录。
+-   A internal node which has k subtrees contains k values.  
+    具有 k 子树的内部节点包含 k 值。
+-   All the leaf nodes are linked by pointers.n  
+    所有的叶子节点都由 pointer.n 链接
+
+<img src="./images/image-20241212104532628.png" alt="image-20241212104532628" style="zoom:50%;" />
+
+-   Actually, B+tree is not a tree (because redundant values both in leaf node and internal node. )  
+    实际上，B+tree 不是树(因为叶节点和内部节点都有冗余值)
+
+-   B+tree is suitable for searching in a range, which doesn’t need to traverse among different nodes (pages in disk).  
+    B+tree 适合在一个范围内进行搜索，不需要遍历不同的节点(磁盘中的页面)。
+
+### 2-3 tree  一个三阶B-tree
+
+## Hash Table  哈希表/散列表
+
+### What is hashing
+
+-   Hash tables place data so that the location of an item is determined directly as a function of the item itself  
+    散列表放置数据，以便将项的位置作为项本身的函数直接确定
+-   Hash table relations: $Address(a_i) ＝ Hash (a_i.key )$
+    -   $a_i$ : is an element 
+    -   $Address(a_i)$: stored address of $ a_i$
+    -   $key$ : is key of $a_i$ element
+
+#### Hashing Definition 
+
+-   Hashing: The process of mapping a key value to a position in a table.  
+    散列: 将键值映射到表中某个位置的过程。
+    -   The hash function determines the location of an item *i* in the hash table. A hash function maps key values to positions. It is denoted by *h*.   
+        散列函数确定项 i 在散列表中的位置。散列函数将键值映射到位置。它由 h 表示。
+    -   A hash table is an array that holds the records. It is denoted by HT.  
+        散列表是保存记录的数组，由 HT 表示。
+    -   HT has m **slots**, indexed from 0 to m-1.  
+        HT 有 m 槽，索引从 0 到 m-1。
+-   For any value K in the key range and hash function h, h(K)=i, 0<=i <m, such that HT[i].key = K.  
+    对于键范围和散列函数 h 中的任意值 K，h (K) = i，0 < = i < m，使得 HT [ i ] . key = K。
+
+#### Problem of Hashing——Collision  散列问题ーー碰撞
+
+-   One problem with hash tables is collisions: when more than one item map to the same location in the hash table.  
+    哈希表的一个问题是冲突: 当多个项映射到哈希表中的同一位置时。
+-   Given: hash function h with keys k1 and k2. b is a slot in the hash table.   
+    给定: 具有键 k1和 k2。 b 是 hash 表中的一个槽。
+    -   If h(k1) = b = h(k2), then k1 and k2 have a collision at b under h.  
+        如果 h (k1) = b = h (k2) ，则 k1和 k2在 h 下的 b 处有碰撞。
+-   Collisions are inevitable in most applications.  
+    在大多数应用中碰撞是不可避免的。
+
+-   To use hashing we must :  
+    要使用散列，我们必须:
+    -   find good hash functions and   
+        找到好的哈希函数和
+    -   determine how to resolve collisions.  
+        决定如何解决冲突。
+-   Store or search for the record with key K:  
+    存储或搜索键为 K 的记录:
+    -   Compute the table location h(K).  
+        计算表位置 h (K)。
+    -   Starting with slot h (K), locate the record containing key K using (if necessary) a collision resolution policy.  
+        从插槽 h (K)开始，使用(如果需要)冲突解决策略定位包含键 K 的记录。
+
+### Hash Function 
+
+#### Linear  线性哈希函数
+
+$Hash (key) ＝a \times  key + b $   {a, b are constants}
+
+#### Digital Analysis  数字分析哈希函数
+
+-   All the keys are known in advance. Select m digits from n.  
+    所有的键都是事先知道的。从 n 中选择 m 个数字。
+    -   Criterion: Delete the digits having the most skewed distributions.  
+        条件: 删除具有最倾斜分布的数字。
+
+#### Modular arithmetic  模运算/除留余数法
+
+$Hash ( key ) = key \% p \  p \le m$ 
+
+-   Assuming the address range is 0 to m-1, let p is a prime which is less than/equal to m.  We can map the keys into addresses with the Hash function。  
+    假设地址范围是0到 m-1，设 p 是小于/等于 m 的素数。我们可以使用 Hash 函数将密钥映射到地址。
+
+#### Mid-square method  平方取中法
+
+先求关键字的平方值，通过平方扩大差异，而后取中间数位作为最终存储地址。

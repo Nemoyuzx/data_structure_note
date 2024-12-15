@@ -604,6 +604,8 @@ $T = O( |V|^2 )$
 
 ## Shortest-Path Algorithms 最短路径算法
 
+[【数据结构】最短路径问题（BFS/DFS算法，Dijkstra算法，Floyd算法，Bellman-Ford算法）_最短路径 bfs dfs时间复杂度-CSDN博客](https://blog.csdn.net/m0_46202073/article/details/116849349)
+
 Given a digraph $G = ( V, E )$, and a cost function $c( e)$ for $e \in E( G )$ . The length of a path *P* from source to destination is (also called weighted path length).在 E (G)中给定一个有向图 $G = (V，E) $和一个成本函数 $c (e) $ for $e \in E( G )$ 。路径 P 从源到目的地的长度是(也称为加权路径长度)。
 
 $$
@@ -801,7 +803,7 @@ void Dijkstra( Table T )
 	if ( !T[ W ].Known ) 
 	    if ( T[ V ].Dist + Cvw < T[ W ].Dist ) {
 	    	Decrease( T[ W ].Dist  to T[ V ].Dist + Cvw );
-		T[ W ].Path = V;
+			T[ W ].Path = V;
 	    } /* end-if update W */
     } /* end-for( ; ; ) */
 }/* not work for edge with negative cost */
@@ -876,6 +878,8 @@ void  WeightedNegative( Table T )
 
 #### Floyd algorithm  弗洛伊德算法
 
+【图-最短路径-Floyd(弗洛伊德)算法】 https://www.bilibili.com/video/BV19k4y1Q7Gj/?share_source=copy_web&vd_source=34564dc36c8c43f2199e17b243d621cf
+
 定义一个 $n$ 阶方阵序列 $A^{(-1)}, A^{(0)}, \ldots, A^{(n-1)}$，其中，
 
 $$
@@ -895,15 +899,15 @@ $$
 /* A negative cycle exists iff D[ i ][ i ] < 0 */ 
 void AllPairs( TwoDimArray A, TwoDimArray D, int N ) 
 {   int  i, j, k; 
-    for ( i = 0; i < N; i++ )  /* Initialize D */ 
-         for( j = 0; j < N; j++ )
-	 D[ i ][ j ] = A[ i ][ j ]; 
-    for( k = 0; k < N; k++ )  /* add one vertex k into the path */
-         for( i = 0; i < N; i++ ) 
-	 for( j = 0; j < N; j++ ) 
-	    if( D[ i ][ k ] + D[ k ][ j ] < D[ i ][ j ] ) 
-		/* Update shortest path */ 
-		 D[ i ][ j ] = D[ i ][ k ] + D[ k ][ j ]; 
+	for ( i = 0; i < N; i++ )  /* Initialize D */ 
+		for( j = 0; j < N; j++ )
+			D[ i ][ j ] = A[ i ][ j ]; 
+	for( k = 0; k < N; k++ )  /* add one vertex k into the path */
+		for( i = 0; i < N; i++ ) 
+			for( j = 0; j < N; j++ ) 
+            	if( D[ i ][ k ] + D[ k ][ j ] < D[ i ][ j ] ) 
+                    /* Update shortest path */ 
+					D[ i ][ j ] = D[ i ][ k ] + D[ k ][ j ]; 
 }
 
 ```
@@ -1081,7 +1085,7 @@ if ( T contains fewer than n-1 edges)
 ```c
 T= { };
 while ( T contains less than n-1 edges && E is not empty){
-    choose a least cost edge (v,w)  from E;
+    choose a least cost edge (v,w) from E;
 	delete (v,w)  from  E;
 	if ((v,w) does not create a cycle in T)
 		add (v,w) to T
@@ -1180,12 +1184,11 @@ void InsertionSort ( ElementType A[ ], int N )
 { 
 	int  i,j; 
 	ElementType  Tmp; 
-
 	for ( i = 1; i < N; i++ ) { 
 	Tmp = A[ i ];  /* the next coming card */
 	for ( j = i; j > 0 && A[ j - 1 ] > Tmp; j-- ) 
 		A[ j ] = A[ j - 1 ]; 
-		/* shift sorted cards to provide a position for the new coming card */
+		/* shift sorted cards to provide a position for the new coming card 数组中将比较完不符合的往右放一位  */
 	A[ j ] = Tmp;  /* place the new card at the proper position */
 	}  /* end for-i-loop */
 }
@@ -1195,29 +1198,31 @@ void InsertionSort ( ElementType A[ ], int N )
 implement 2
 
 ```c
-typedef struct   {
-	keytype   key;
-	. . . . . .
-}elemtype;
+typedef struct { // 单位值结构体
+    keytype key; // 值的大小
+    . . . . . .
+} elemtype;
 
-typedef struct   {
-	elemtype   *  elem;
-	int   length;
-}sqlist;
+typedef struct { // 序列结构体
+    elemtype *elem; // 存位值的结构体指针
+    int length; // 序列长度
+} sqlist;
 
-void straightinsertsort  ( sqlist &R )
-{
-	int i, j;
-    for   ( i = 2 ; i <= R.length ;  i++ )   
-    if   ( R.elem[i].key < R.elem[i-1].key ) //cmp [i] with [i-1]
-    {    
-		R.elem[ 0 ] = R.elem[ i ] ; //set guard
-        R.elem[ i ] = R.elem[ i-1 ] ; 
-        for  (  j=i-2 ; R.elem[0].key < R.elem[j].key ; j-- ) 
-            R.elem[ j+1] = R.elem[ j ];  // move elements right
-        	R.elem[ j+1 ] = R.elem[ 0 ] ;  //insert at the proper pos.
-    	}
-	}
+//传统的插入排序中，内层循环需要在每次比较时检查索引是否已经到达序列的起始位置，以避免数组越界
+//检查会增加每次比较的开销。通过引入哨兵，可以省略对 j >= 1 的显式检查
+//其实就是将被插入数单独存一个拷贝到非常好被读写的地方
+void straight_insertsort(sqlist &R) { // with guard 有哨兵方法
+    int i, j; 
+    for (i = 2; i <= R.length; i++) { // i用来选取要被插入的值
+        if (R.elem[i].key < R.elem[i-1].key) { // cmp [i] with [i-1] 比较值的大小,大的话这个就已经是正确顺序了
+            R.elem[0] = R.elem[i]; // set guard 设置哨兵
+            R.elem[i] = R.elem[i-1];//第一次插入
+            for (j = i-2; R.elem[0].key < R.elem[j].key; j--) { //用于遍历已排序部分，从当前插入点 i-2 开始，向左（递减）查找
+                R.elem[j+1] = R.elem[j]; // move elements right 元素右移
+                R.elem[j+1] = R.elem[0]; // insert at the proper pos. 插入到适当的位置
+            }
+        }
+    }
 }
 
 ```
@@ -1226,6 +1231,9 @@ void straightinsertsort  ( sqlist &R )
 
 -   Time Complexity:  
     时间复杂度:
+    
+    $O(n^2)$
+    
     -   Best case(when the list is already in order):   
         最佳情况(当列表已经按顺序排列时) :
         -   Comparisons of keys:   
@@ -1243,8 +1251,10 @@ void straightinsertsort  ( sqlist &R )
             键的比较:
         -   Move element:   
             移动元素:
+    
 -   Space Complexity：O(1)  
     空间复杂度: O (1)
+    
 -   Insertion Sorting is stable.  
     插入排序是稳定的。
 
@@ -1264,6 +1274,8 @@ void straightinsertsort  ( sqlist &R )
         线性搜索，移动—— > 0
 
 ### shell sort 希尔排序
+
+又称缩小增量法
 
 -   Basic idea: group the list into several sublists and apply insertion sort in each sublist. Continue in this manner, finally apply insertion sort to all records.
     -   First, group the list into several sublists by interval $d_1$
@@ -1285,23 +1297,21 @@ void straightinsertsort  ( sqlist &R )
 -   希尔取法：$d_1 = \lfloor n/2 \rfloor, \, d_{i+1} = \lfloor d_i/2 \rfloor, \, \ldots, \, d_t = 1$
 
 ```c
-void Shellsort( ElementType A[ ], int N ) 
+void Shellsort(ElementType A[], int N) 
 { 
-	int  i, j, Increment; 
-	ElementType  Tmp; 
-	for ( Increment = N / 2; Increment > 0; Increment /= 2 )  
-	/*h sequence */
-	for ( i = Increment; i < N; i++ ) { /* insertion sort */
-		Tmp = A[ i ]; 
-		for ( j = i; j >= Increment; j - = Increment ) 
-			if( Tmp < A[ j - Increment ] ) 
-				A[ j ] = A[ j - Increment ]; 
-			else 
-				break; 
-		A[ j ] = Tmp; 
-	} /* end for-I and for-Increment loops */
+    int i, j, Increment;  // 定义变量i, j和增量Increment
+    ElementType Tmp;      // 临时变量Tmp，用来暂存当前元素
+    for (Increment = N / 2; Increment > 0; Increment /= 2) 
+    // 计算增量序列，增量从N/2开始，每次除以2 Compute the increment sequence, starting from N/2, reducing by half each time
+        for (i = Increment; i < N; i++) {  // 从第Increment位置开始，进行插入排序  
+            Tmp = A[i]; // Store the current element in Tmp 将当前元素存储到Tmp中
+            for (j = i; j >= Increment; j -= Increment) // Insertion sort with increment step 通过增量步长对当前元素进行插入排序
+                if (Tmp < A[j - Increment])  // 如果Tmp小于当前位置前一个位置的元素
+                    A[j] = A[j - Increment];  // 将前一个元素向后移动
+                else break;  // 如果不满足条件，则跳出循环，元素已经插入到合适的位置
+            A[j] = Tmp;  // Place Tmp (the current element) in the correct position 将Tmp（当前元素）放入正确的位置
+        }  //End of for-i and increment loop 结束for-i和增量循环
 }
-
 ```
 
 -   The worst-case running time of Shellsort, using Shell’s increments, is O ( N2 ).
@@ -1347,18 +1357,17 @@ void  bubble_Sort (int a[], int n ){
 improve 改进
 
 ```c
-void  bubble_Sort (int a[], int n ){ 
-    for ( int i = n-1, change =1;  i>=1 &&change; i--){   
-		change =0; 
-		for (j=0; j<i;  j++){
-			if ( a[j] > a[j+1] ) {
-				Swap ( j +1, j );	
-				change = 1;   //if exchange, set flag
-			}
-		} 
+void bubble_Sort(int a[], int n) {
+    for (int i = n - 1, change = 1; i >= 1 && change; i--) { // 外层循环控制排序的趟数，从数组的最后一项开始逐渐减少
+        change = 0; // 每一趟排序开始前，先将change标记为0
+        for (int j = 0; j < i; j++) { // 内层循环负责比较相邻元素并交换
+            if (a[j] > a[j + 1]) { // 如果当前元素大于下一个元素，则交换它们
+                Swap(j + 1, j); // 调用Swap函数交换元素的位置
+                change = 1;  // 设置change标记为1，表示发生了交换
+            }
+        }
     }
-}//If no swap all over the process, no need to continue bubbling 如果整个过程没有交换，就没有必要继续冒泡
-
+} // 如果在某一趟排序过程中没有发生交换（change为0），那么说明数组已经有序，可以提前结束排序，提升效率。
 ```
 
 ![img](./images/c13373922b3862f43cd7e444c78176aa.gif)
@@ -1420,54 +1429,53 @@ void Quicksort ( ElementType A[ ], int N ){
 
 
 ```c
-/* Return median of Left, Center, and Right 返回左，中，右的中位数*/ 
-/* Order these and hide the pivot 排序这些，把中心点藏起来 */ 
-
-ElementType Median3( ElementType A[ ], int Left, int Right ) 
-{ 
-    int  Center = ( Left + Right ) / 2; 
-    if ( A[ Left ] > A[ Center ] ) 
-		Swap( &A[ Left ], &A[ Center ] ); 
-    if ( A[ Left ] > A[ Right ] ) 
-        Swap( &A[ Left ], &A[ Right ] ); 
-    if ( A[ Center ] > A[ Right ] ) 
-        Swap( &A[ Center ], &A[ Right ] ); 
-    /* Invariant 不变的: A[ Left ] <= A[ Center ] <= A[ Right ] */ 
-    Swap( &A[ Center ], &A[ Right - 1 ] ); /* Hide pivot */ 
-    /* only need to sort A[ Left + 1 ] … A[ Right – 2 ] */
-    return  A[ Right - 1 ];  /* Return pivot */ 
+ElementType Median3(ElementType A[], int Left, int Right){ /* 返回左，中，右三个元素的中位数 */
+    int Center = (Left + Right) / 2; // 计算中间元素的索引
+    if (A[Left] > A[Center]) // 确保左边的元素小于或等于中间元素，如果不满足则交换
+        Swap(&A[Left], &A[Center]);
+    if (A[Left] > A[Right]) // 确保左边的元素小于或等于右边的元素，如果不满足则交换
+        Swap(&A[Left], &A[Right]);
+    if (A[Center] > A[Right]) // 确保中间的元素小于或等于右边的元素，如果不满足则交换
+        Swap(&A[Center], &A[Right]);
+    /* 不变的：A[Left] <= A[Center] <= A[Right] */
+    Swap(&A[Center], &A[Right - 1]); // 把中间元素（A[Center]）交换到倒数第二个位置 A[Right-1]，用于隐藏基准（pivot）
+    /* 现在只需要排序 A[Left+1] 到 A[Right-2] 之间的部分 */
+    return A[Right - 1]; // 返回基准元素 A[Right-1]，即pivot
 }
 
 ```
 
 ```c
-void  Quicksort( ElementType A[ ], int N ) 
-{ 
-	Qsort( A, 0, N - 1 ); 
-	/* A: 	the array 	*/
-	/* 0: 	Left index 	*/
-	/* N – 1: Right index	*/
+void Quicksort(ElementType A[], int N) { 
+    // 调用 Qsort 函数进行递归排序，初始时从整个数组的左端 (0) 到右端 (N-1) 排序
+    Qsort(A, 0, N - 1); 
+    /* A: 数组；0: 左索引；N - 1: 右索引 */
 }
 
-void  Qsort( ElementType A[ ], int Left, int Right ) {
-	int  i,  j; 
-    ElementType  Pivot; 
-    if ( Left + Cutoff <= Right ) {  /* if the sequence is not too short 如果序列不太短*/
-		Pivot = Median3( A, Left, Right );  /* select pivot 选择枢轴 */
-        i = Left;     j = Right – 1;  /* why not set Left+1 and Right-2? */
-        for( ; ; ) { 
-             while ( A[ ++i ] < Pivot ) {}  /* scan from left */
-             while ( A[ --j ] > Pivot ) {}  /* scan from right */
-             if ( i < j ) Swap( &A[ i ], &A[ j ] );  /* adjust partition 调整分区*/
-             else break;  /* partition done */
+void Qsort(ElementType A[], int Left, int Right) {
+    int i, j; 
+    ElementType Pivot; 
+    if (Left + Cutoff <= Right) { // 如果待排序的序列长度大于 Cutoff（即序列不太短），则使用快速排序
+        Pivot = Median3(A, Left, Right);  // 选择中位数作为枢轴（pivot）
+        i = Left; j = Right - 1;  // 初始化 i 和 j，i 从左边开始，j 从右边开始
+        for(;;) { // 开始分区过程
+            while (A[++i] < Pivot) {}  // 从左边开始扫描，直到找到大于或等于枢轴的元素
+            while (A[--j] > Pivot) {}  // 从右边开始扫描，直到找到小于或等于枢轴的元素
+            if (i < j) // 如果 i 小于 j，交换 i 和 j 位置的元素，调整分区
+                Swap(&A[i], &A[j]);  
+            else // 如果 i >= j，分区完成，退出循环
+                break;  
         } 
-        Swap( &A[ i ], &A[ Right - 1 ] ); /* restore pivot */ 
-        Qsort( A, Left, i - 1 );      /* recursively sort left part  递归排序左边部分 */
-        Qsort( A, i + 1, Right );   /* recursively sort right part 递归排序正确的部分 */
-    }  /* end if - the sequence is long 结束如果-序列是长的*/
-    else /* do an insertion sort on the short subarray 对短子数组执行插入排序*/ 
-        InsertionSort( A + Left, Right - Left + 1 );
+        Swap(&A[i], &A[Right - 1]); // 将枢轴元素放到合适的位置，即 i 位置，并恢复枢轴元素
+        Qsort(A, Left, i - 1); // 递归地 对左半部分进行快速排序      
+        Qsort(A, i + 1, Right); // 递归地 对右半部分进行快速排序
+    }  
+    else { 
+        /* 对短子数组执行插入排序 */
+        InsertionSort(A + Left, Right - Left + 1);  // 对长度小于等于 Cutoff 的部分使用插入排序
+    }
 }
+
 ```
 
 -   Small Arrays 针对于小的数组
