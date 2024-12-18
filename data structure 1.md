@@ -1569,14 +1569,15 @@ void QuickSort(int* a, int left, int right)
     -   **每一趟从待排序的数据元素中选出最小（或最大）的一个元素，顺序放在已排好序的数列的最后，直到全部待排序的数据元素排完。**
 
 ```c
-void   simpleselectionsort ( sqlist   &R)
-{
-     for   ( i = 1 ; i < R.length ; i++ )
-     {
-          for  (k=i , j=i+1 ; j <= R.length ; j++) 
-                 if  (R.elem[j].key<R.elem[k].key)  k=j;
-          if  ( k != i )  R.elem [ i ] ←→ R.elem [ k ];
-      }
+void simpleselectionsort(sqlist &R) {
+    for (i = 1; i < R.length; i++) { // 外层循环，i 从 1 到 R.length-1，表示当前选择的位置
+        for (k = i, j = i + 1; j <= R.length; j++) { // 内层循环，k 初始为 i，j 从 i+1 到 R.length，扫描剩余部分
+            if (R.elem[j].key < R.elem[k].key)  // 如果 R.elem[j].key 小于 R.elem[k].key，更新 k 为 j
+                k = j;
+        }
+        if (k != i) // 如果 k 发生变化，说明找到了比 R.elem[i] 更小的元素，交换它们
+            R.elem[i] ←→ R.elem[k];
+    }
 }
 
 ```
@@ -1655,20 +1656,21 @@ void   simpleselectionsort ( sqlist   &R)
 ![动图](./images/v2-b7907d351809293c60658b0b87053c66_b.webp)
 
 ```c
-//For H.r[s..m], all elements satisfy the definition of heap except H.r[s]
-// Adjust H.r[s..m] to MaxHeap
+// 对于 H.r[s..m]，除了 H.r[s]，所有元素都满足堆的定义
+// 调整 H.r[s..m] 使其成为一个最大堆
 typedef SqList HeapType;
-void HeapAdujst(HeapType &H, int s, int m)  {  
-	rc=H.r[s];
-	for(j=2*s; j<=m; j*=2) {  // travel along the larger child
-		if(j<m && H.r[j].key<=H.r[j+1].key)  
-			j++; 			// j is the larger child
-		if(rc.key>=H.r[j].key) 
-            break; // if not (child > parent), continue
-		H.r[s]=H.r[j];      //parent is replaced with the larger child
-		s=j; // for next iteration
+
+void HeapAdjust(HeapType &H, int s, int m) {  
+    rc = H.r[s]; // 保存当前节点的值
+    for (j = 2 * s; j <= m; j *= 2) { // 从当前节点的左子节点（2*s）开始，逐步沿着较大的子节点调整
+        if (j < m && H.r[j].key <= H.r[j + 1].key) // 如果右子节点存在，并且右子节点比左子节点大，则选择右子节点
+            j++;  // j 是较大的子节点
+        if (rc.key >= H.r[j].key) // 如果当前节点的值已经大于等于较大的子节点的值，说明堆已满足最大堆性质，退出调整
+            break;  // 如果父节点 >= 最大子节点，则堆已经满足性质，停止调整
+        H.r[s] = H.r[j];  // 父节点被替换为较大的子节点
+        s = j;  // 更新 s，对下一层的子树进行调整
     }
-	H.r[s]=rc;
+    H.r[s] = rc; // 将原父节点的值放到最终的位置，完成调整
 }
 
 ```
@@ -1684,13 +1686,14 @@ void HeapAdujst(HeapType &H, int s, int m)  {
 <img src="./images/v2-acbdde7cf6f0426e693187c4899716e7_1440w.png" alt="img" style="zoom:50%;" />![img](./images/v2-6db33bd4ddb7937ca5946283ef2acc5d_1440w.jpg)
 
 ```c
-void HeapSort( HeapType &H )
-{   
-	for( i=H.length/2; i>0; i--)
-	HeapAdjust( H, i, H.length );  //H.r[1..H.length] is built to MaxHeap
-    for( i=H.length; i>1; i--){   
-		H.r[1]<->H.r[i];         //exchange H.r[1] with H.r[i]
-		HeapAdjust( H, 1, i-1 );   //H.r[1..i-1] is adjusted to MaxHeap
+void HeapSort(HeapType &H) {   
+    // 第一步：从 H.r[H.length/2] 到 H.r[1] 调整每个节点为最大堆
+    for (i = H.length / 2; i > 0; i--) // 从最后一个非叶子节点开始，逐步向前调整整个堆，使得整个堆变成一个最大堆
+        HeapAdjust(H, i, H.length);  // 调整 H.r[1..H.length] 使其成为最大堆
+    // 第二步：将堆顶（最大元素）与最后一个元素交换，将最大元素移到数组末尾
+    for (i = H.length; i > 1; i--) {// 然后调整堆的剩余部分，使其继续保持最大堆性质
+        H.r[1] <-> H.r[i];          // 交换 H.r[1]（堆顶）和 H.r[i]（当前末尾）
+        HeapAdjust(H, 1, i - 1);    // 调整 H.r[1..i-1] 使其仍然是最大堆
     }
 }
 
@@ -1738,51 +1741,55 @@ We chop the list into two sublists of sizes as nearly equal as possible and then
 <img src="./images/1c9517428afa0244546c0e08a8e7c3fe.gif" alt="img" style="zoom:67%;" />
 
 ```c
-void MSort( ElementType A[ ], ElementType TmpArray[ ], int Left, int Right ) {
-    int  Center; 
-    if ( Left < Right ) {  /* if there are elements to be sorted */
-	Center = ( Left + Right ) / 2; 
-	MSort( A, TmpArray, Left, Center ); 	/* T( N / 2 ) */
-	MSort( A, TmpArray, Center + 1, Right ); 	/* T( N / 2 ) */
-	Merge( A, TmpArray, Left, Center + 1, Right );  /* O( N ) */
-    } 
-} 
-
-void Mergesort( ElementType A[ ], int N ){  //only a driver for Msort
-    ElementType  *TmpArray;  /* need O(N) extra space */
-    TmpArray = malloc( N * sizeof( ElementType ) ); 
-    if ( TmpArray != NULL ) { 
-	MSort( A, TmpArray, 0, N - 1 ); 
-	free( TmpArray ); 
-    } 
-    else  FatalError( "No space for tmp array!!!" ); 
+// 归并排序的核心递归函数
+void MSort(ElementType A[], ElementType TmpArray[], int Left, int Right) {
+    int Center;
+    if (Left < Right) {  // 如果还有元素需要排序
+        Center = (Left + Right) / 2;  // 找到中间位置
+        MSort(A, TmpArray, Left, Center);  // 递归排序左半部分 T(N/2)
+        MSort(A, TmpArray,      Center + 1, Right);  // 递归排序右半部分 T(N/2)
+        Merge(A, TmpArray, Left, Center + 1, Right);  // 合并两个已排序的部分 O(N)
+    }
 }
 
-/* Lpos = start of left half, Rpos = start of right half */ 
-void Merge( ElementType A[ ], ElementType TmpArray[ ], int Lpos, int Rpos, int RightEnd ) {
-    int  i, LeftEnd, NumElements, TmpPos; 
-    LeftEnd = Rpos - 1; 
-    TmpPos = Lpos; 
-    NumElements = RightEnd - Lpos + 1; 
-    while( Lpos <= LeftEnd && Rpos <= RightEnd ) /* main loop */ 
-        if ( A[ Lpos ] <= A[ Rpos ] ) 
-	TmpArray[ TmpPos++ ] = A[ Lpos++ ]; 
-        else 
-	TmpArray[ TmpPos++ ] = A[ Rpos++ ]; 
-    while( Lpos <= LeftEnd ) /* Copy rest of first half */ 
-        TmpArray[ TmpPos++ ] = A[ Lpos++ ]; 
-    while( Rpos <= RightEnd ) /* Copy rest of second half */ 
-        TmpArray[ TmpPos++ ] = A[ Rpos++ ]; 
-    for( i = 0; i < NumElements; i++, RightEnd - - ) 
-         /* Copy TmpArray back */ 
-        A[ RightEnd ] = TmpArray[ RightEnd ]; 
+// 归并排序的驱动函数
+void Mergesort(ElementType A[], int N) {  // 仅为 MSort 的驱动程序
+    ElementType *TmpArray;  // 用于归并过程的临时数组，需要 O(N) 的额外空间
+    TmpArray = malloc(N * sizeof(ElementType));  // 为临时数组分配空间
+    if (TmpArray != NULL) {
+        MSort(A, TmpArray, 0, N - 1);  // 调用 MSort 进行归并排序
+        free(TmpArray);  // 排序完成后释放临时数组空间
+    }
+    else {
+        FatalError("No space for tmp array!!!");  // 如果分配空间失败，输出错误信息
+    }
+}
+
+/* Lpos = 左半部分的起始位置, Rpos = 右半部分的起始位置 */ 
+void Merge(ElementType A[], ElementType TmpArray[], int Lpos, int Rpos, int RightEnd) {
+    int i, LeftEnd, NumElements, TmpPos;
+    LeftEnd = Rpos - 1;  // 左半部分的结束位置
+    TmpPos = Lpos;  // 临时数组的当前位置
+    NumElements = RightEnd - Lpos + 1;  // 需要合并的元素总数
+    while (Lpos <= LeftEnd && Rpos <= RightEnd) {  // 主循环：合并两个部分
+        if (A[Lpos] <= A[Rpos])  // 如果左半部分的元素小于等于右半部分的元素
+            TmpArray[TmpPos++] = A[Lpos++];  // 将左半部分的元素放入临时数组
+        else
+            TmpArray[TmpPos++] = A[Rpos++];  // 否则将右半部分的元素放入临时数组
+    }
+    while (Lpos <= LeftEnd)  // 将剩余的左半部分元素复制到临时数组
+        TmpArray[TmpPos++] = A[Lpos++];
+    while (Rpos  <= RightEnd)  // 将剩余的右半部分元素复制到临时数组
+        TmpArray[TmpPos++] = A[Rpos++];
+    for (i = 0; i < NumElements; i++, RightEnd--)  // 将临时数组中的元素复制回原数组 A
+        A[RightEnd] = TmpArray[RightEnd];  // 从后往前复制
 }
 
 ```
 
 -   analysis
-    -   Time Complexity : $O(NlogN)$
-    -   Space CompIexity : $O(N)$
+    -   Time Complexity : $O(NlogN)$ 
+    -   Space CompIexity : $O(N)$ 
     -   MergeSort is stable.  稳定
 
 ## Bucket Sort  桶排序
@@ -1913,15 +1920,15 @@ void BucketSort(int n,int arr[]){
 
 ### Summary of sorting analysis 分类分析摘要
 
-| Sorting Algorithm        | Average Case | Worst Case  | Space Complexity | Stability  |
-| ------------------------ | ------------ | ----------- | ---------------- | ---------- |
-| Insertion Sort  插入排序 | $O(n^2)$     | $O(n^2)$    | $O(1)$           | Stable     |
-| Bubble Sort  冒泡排序    | $O(n^2)$     | O(n^2)      | O(1)             | Stable     |
-| Selection Sort  选择排序 | O(n^2)       | O(n^2)      | O(1)             | Not stable |
-| Shell Sort  希尔排序     | O(n^d)       | O(n^2)      | O(1)             | Not stable |
-| Quick Sort  快速排序     | O(n log n)   | O(n^2)      | O(log n)         | Not stable |
-| Heap Sort  堆排序        | O(n log n)   | O(n log n)  | O(1)             | Not stable |
-| Merge Sort  归并排序     | O(n log n)   | O(n log n)  | O(n)             | Stable     |
-| Radix Sort  基数排序     | O(d (n+rd))  | O(d (n+rd)) | O(n+rd)          | Stable     |
+| Sorting Algorithm        | Average Case  | Worst Case    | Space Complexity | Stability  |
+| ------------------------ | ------------- | ------------- | ---------------- | ---------- |
+| Insertion Sort  插入排序 | $O(n^2)$      | $O(n^2)$      | $O(1)$           | Stable     |
+| Bubble Sort  冒泡排序    | $O(n^2)$      | $O(n^2)$      | $O(1)$           | Stable     |
+| Selection Sort  选择排序 | $O(n^2)$      | $O(n^2)$      | $O(1)$           | Not stable |
+| Shell Sort  希尔排序     | $O(n^d)$      | $O(n^2)$      | $O(1)$           | Not stable |
+| Quick Sort  快速排序     | $O(n log n)$  | $O(n^2)$      | $O(log n)$       | Not stable |
+| Heap Sort  堆排序        | $O(n log n)$  | $O(n log n)$  | $O(1)$           | Not stable |
+| Merge Sort  归并排序     | $O(n log n)$  | $O(n log n)$  | $O(n)$           | Stable     |
+| Radix Sort  基数排序     | $O(d (n+rd))$ | $O(d (n+rd))$ | $O(n+rd)$        | Stable     |
 
 ### Sorting Summary 排序小结
